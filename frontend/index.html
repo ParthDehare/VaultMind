@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultMind v2.0 — Fraud Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f7fa;--bg2:#ffffff;--bg3:#f0f2f5;--bg4:#e4e8ef;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--teal:#00957a;--teal2:#007a64;--red:#e8002d;--red2:#b50025;--gold:#c47f00;--blue:#1a6fd4;--muted:#7a8fa6;--text:#0f1a2e;--text2:#4a6070;--text3:#8a9bb0;--navy:#1a3a6b;--sidebar:220px;--header:56px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:#f0f2f5}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--header);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;width:var(--sidebar);flex-shrink:0}
+.logo-mark{width:32px;height:32px;background:var(--teal);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;color:#fff;letter-spacing:-1px}
+.logo-text{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.logo-ver{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.topbar-center{flex:1;display:flex;align-items:center;gap:8px}
+.topbar-title{font-size:13px;font-weight:500;color:var(--text2)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.status-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.status-pill.green{background:rgba(0,229,192,0.1);color:var(--teal);border:1px solid rgba(0,229,192,0.2)}
+.status-pill.red{background:rgba(255,59,92,0.12);color:var(--red);border:1px solid rgba(255,59,92,0.25)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.demo-btn{background:var(--red);color:white;border:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.demo-btn:hover{background:var(--red2);transform:translateY(-1px)}
+.sidebar{position:fixed;left:0;top:var(--header);bottom:0;width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;z-index:90}
+.nav-section{padding:16px 12px 4px;font-size:9px;font-weight:600;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 6px;border-radius:6px;cursor:pointer;transition:all 0.15s;font-size:13px;color:var(--text2);position:relative}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(0,229,192,0.08);color:var(--teal);border:1px solid rgba(0,229,192,0.15)}
+.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;font-family:'IBM Plex Mono',monospace}
+.nav-badge.teal{background:var(--teal);color:var(--bg)}
+.nav-star{margin-left:auto;color:var(--gold);font-size:11px}
+.main{margin-left:var(--sidebar);margin-top:var(--header);padding:20px;min-height:calc(100vh - var(--header))}
+.page{display:none}.page.active{display:block}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.card-sm{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--teal))}
+.stat-label{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--accent,var(--teal));line-height:1}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:5px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace}
+.section-badge{font-size:10px;padding:3px 8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.live-badge{background:rgba(0,229,192,0.1);color:var(--teal);border:1px solid rgba(0,229,192,0.2)}
+.alert-list{display:flex;flex-direction:column;gap:6px}
+.alert-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent}
+.alert-row:hover{background:var(--bg4);border-color:var(--border2)}
+.alert-row.critical{border-left-color:var(--red)}.alert-row.high{border-left-color:var(--gold)}.alert-row.medium{border-left-color:var(--blue)}
+.alert-score{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0}
+.score-crit{background:rgba(255,59,92,0.15);color:var(--red)}.score-high{background:rgba(255,209,102,0.15);color:var(--gold)}.score-med{background:rgba(74,158,255,0.15);color:var(--blue)}
+.alert-info{flex:1;min-width:0}
+.alert-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.alert-detail{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alert-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;flex-shrink:0;font-family:'IBM Plex Mono',monospace}
+.tag-crit{background:rgba(255,59,92,0.15);color:var(--red)}.tag-high{background:rgba(255,209,102,0.15);color:var(--gold)}.tag-med{background:rgba(74,158,255,0.15);color:var(--blue)}.tag-mon{background:rgba(90,122,153,0.2);color:var(--text2)}
+.agent-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.agent-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between}
+.agent-name{font-size:11px;font-weight:600;color:var(--text)}
+.agent-score{font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.a-teal{color:var(--teal)}.a-red{color:var(--red)}.a-gold{color:var(--gold)}.a-blue{color:var(--blue)}
+.heatmap-list{display:flex;flex-direction:column;gap:6px}
+.heatmap-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:6px}
+.heatmap-name{font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text2);width:70px;flex-shrink:0}
+.heatmap-bar-wrap{flex:1;background:var(--bg4);border-radius:3px;height:6px;overflow:hidden}
+.heatmap-bar{height:100%;border-radius:3px}
+.heatmap-val{font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;width:30px;text-align:right}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.col-70-30{display:grid;grid-template-columns:1fr 340px;gap:12px}
+.page-header{margin-bottom:20px}
+.page-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text2)}
+.emp-table{width:100%;border-collapse:collapse}
+.emp-table th{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.emp-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px}
+.emp-table tr:hover td{background:var(--bg3)}
+.risk-bar{height:4px;border-radius:2px;display:inline-block;vertical-align:middle;margin-left:8px}
+.badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;font-family:'IBM Plex Mono',monospace}
+.b-crit{background:rgba(255,59,92,0.15);color:var(--red)}.b-high{background:rgba(255,209,102,0.15);color:var(--gold)}.b-med{background:rgba(74,158,255,0.15);color:var(--blue)}.b-low{background:rgba(0,229,192,0.1);color:var(--teal)}.b-watch{background:rgba(90,122,153,0.15);color:var(--text2)}
+.xai-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px}
+.xai-score-big{font-size:72px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;transition:color 0.3s}
+.xai-score-label{font-size:12px;color:var(--text2);margin-top:4px;font-family:'IBM Plex Mono',monospace}
+.slider-row{margin-bottom:18px}
+.slider-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.slider-name{font-size:12px;font-weight:600;color:var(--text)}
+.slider-val{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text2)}
+.slider-impact{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--teal)}
+input[type=range]{width:100%;height:4px;-webkit-appearance:none;background:var(--bg4);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--teal);cursor:pointer;border:2px solid var(--bg2)}
+.factor-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.factor-tag{font-size:10px;padding:3px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace;border:1px solid var(--border)}
+.mirage-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+.mirage-account{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
+.mirage-account:hover{border-color:var(--red);background:rgba(255,59,92,0.05)}
+.mirage-account.triggered{border-color:var(--red);background:rgba(255,59,92,0.1)}
+.ma-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px}
+.ma-bal{font-size:14px;font-weight:700;color:var(--gold);font-family:'IBM Plex Mono',monospace}
+.ma-acc{font-size:9px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:3px}
+.ma-status{font-size:9px;margin-top:6px;font-weight:600}
+.trap-label{position:absolute;top:6px;right:6px;background:rgba(255,59,92,0.2);color:var(--red);font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace}
+.evidence-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:8px;transition:all 0.15s}
+.evidence-card:hover{border-color:var(--border2)}
+.ev-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ev-title{font-size:13px;font-weight:600;color:var(--text)}
+.ev-hash{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--teal);margin-top:2px}
+.ev-meta{display:flex;gap:12px;font-size:11px;color:var(--text2);flex-wrap:wrap}
+.btn{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'IBM Plex Sans',sans-serif;transition:all 0.2s}
+.btn-teal{background:var(--teal);color:var(--bg)}.btn-teal:hover{background:var(--teal2)}
+.btn-outline{background:transparent;color:var(--teal);border:1.5px solid var(--teal)}.btn-outline:hover{background:rgba(0,229,192,0.1)}
+.btn-red{background:var(--red);color:white}.btn-red:hover{background:var(--red2)}
+.forecast-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border-radius:8px;margin-bottom:6px}
+.fc-day{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text2);width:120px;flex-shrink:0}
+.fc-bar-wrap{flex:1;background:var(--bg4);border-radius:3px;height:8px;overflow:hidden}
+.fc-bar{height:100%;border-radius:3px}
+.fc-score{font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;width:45px;text-align:right}
+.fc-label{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;font-family:'IBM Plex Mono',monospace;width:50px;text-align:center}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;width:600px;max-height:85vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-size:16px;font-weight:700;color:var(--text)}
+.modal-close{background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px}
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:1px;background:var(--border2)}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.tl-time{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--text3);margin-bottom:3px}
+.tl-text{font-size:12px;color:var(--text2)}
+.hash-box{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--teal);word-break:break-all;margin:8px 0}
+.cinematic{background:linear-gradient(135deg,rgba(232,0,45,0.06),rgba(0,149,122,0.04));border:1px solid rgba(255,59,92,0.2);border-radius:10px;padding:16px;display:flex;align-items:center;gap:16px;margin-bottom:16px;cursor:pointer;transition:all 0.2s}
+.cinematic:hover{border-color:rgba(255,59,92,0.4);background:linear-gradient(135deg,rgba(232,0,45,0.09),rgba(0,149,122,0.06))}
+.cin-play{width:44px;height:44px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:white}
+.cin-text{flex:1}
+.cin-title{font-size:14px;font-weight:700;color:var(--text)}
+.cin-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.cin-dots{display:flex;gap:6px;align-items:center}
+.cin-dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.cin-dot.active{background:var(--teal);animation:pulse 1.5s infinite}
+.sep{height:1px;background:var(--border);margin:16px 0}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--red);border-radius:10px;padding:14px 18px;z-index:500;display:none;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+.toast.show{display:block;animation:slideIn 0.3s ease}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px}
+.toast-body{font-size:11px;color:var(--text2)}
+.cin-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:400;display:none;align-items:center;justify-content:center}
+.cin-modal-overlay.open{display:flex}
+.cin-modal{background:#0a1628;border:1px solid rgba(255,59,92,0.3);border-radius:16px;padding:28px;width:580px;max-width:95vw;max-height:85vh;overflow-y:auto}
+.cin-modal-title{font-size:18px;font-weight:700;color:#ffffff;margin-bottom:4px;font-family:'IBM Plex Sans',sans-serif}
+.cin-modal-sub{font-size:11px;color:#5a7a99;margin-bottom:22px;font-family:'IBM Plex Mono',monospace}
+.cin-timeline{padding-left:16px}
+.cin-ev{display:flex;gap:14px;align-items:flex-start;padding:10px 0 10px 20px;border-left:2px solid #1e3a5f;margin-left:6px;position:relative;opacity:0;transition:opacity 0.3s}
+.cin-ev.visible{opacity:1}
+.cin-ev-dot{width:12px;height:12px;border-radius:50%;position:absolute;left:-7px;top:13px;flex-shrink:0}
+.cin-ev-time{font-size:10px;color:#5a7a99;width:75px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;padding-top:2px}
+.cin-ev-desc{font-size:12px;color:#c8d8e8;font-weight:500;flex:1;line-height:1.5}
+.cin-ev-score{font-size:14px;font-weight:800;width:36px;text-align:right;font-family:'IBM Plex Mono',monospace}
+.cin-close{width:100%;margin-top:18px;padding:10px;background:#1e3a5f;border:none;border-radius:8px;color:#8a9bb0;font-size:12px;cursor:pointer;font-weight:600;font-family:'IBM Plex Sans',sans-serif;transition:all 0.2s}
+.cin-close:hover{background:#2d5080;color:white}
+/* NEW: evidence card animation */
+.evidence-card.new-card{border-color:var(--teal);background:rgba(0,149,122,0.04);animation:fadeIn 0.5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.flex{display:flex}.gap8{gap:8px}.gap12{gap:12px}.gap16{gap:16px}.items-center{align-items:center}.justify-between{justify-content:space-between}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mt8{margin-top:8px}.mt12{margin-top:12px}.w100{width:100%}
+.mono{font-family:'IBM Plex Mono',monospace}
+.text-teal{color:var(--teal)}.text-red{color:var(--red)}.text-gold{color:var(--gold)}.text-blue{color:var(--blue)}.text-muted{color:var(--text2)}
+.fw7{font-weight:700}.fw6{font-weight:600}.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- CINEMATIC MODAL -->
+<div class="cin-modal-overlay" id="cin-modal">
+  <div class="cin-modal">
+    <div class="cin-modal-title">Employee 4471 — Fraud Story</div>
+    <div class="cin-modal-sub">14 March 2026 · Mumbai Main Branch · Branch Manager Ramesh Kumar Gupta</div>
+    <div class="cin-timeline" id="cin-events"></div>
+    <button class="cin-close" onclick="closeCinematic()">Close Cinematic View</button>
+  </div>
+</div>
+
+<!-- ALERT MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Alert Detail</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title">Alert</div>
+  <div class="toast-body" id="toast-body"></div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">VM</div>
+    <div><div class="logo-text">VaultMind</div><div class="logo-ver"></div></div>
+  </div>
+  <div class="topbar-center"><span class="topbar-title" id="page-label">Command Centre</span></div>
+  <div class="topbar-right">
+    <div class="status-pill green"><span class="dot"></span>8 Agents Live</div>
+    <div class="status-pill red"><span class="dot"></span>3 CRITICAL</div>
+    <button class="demo-btn" onclick="triggerDemo()">▶ Demo — Emp 4471</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="nav-section">Monitoring</div>
+  <div class="nav-item active" onclick="showPage('dashboard',this,'Command Centre')"><span class="nav-icon">⬛</span>Command Centre</div>
+  <div class="nav-item" onclick="showPage('employees',this,'Employee Watch')"><span class="nav-icon">👤</span>Employee Watch<span class="nav-badge">12</span></div>
+  <div class="nav-item" onclick="showPage('alerts',this,'Live Alerts')"><span class="nav-icon">🔔</span>Alerts<span class="nav-badge">3</span></div>
+  <div class="nav-section">Analytics</div>
+  <div class="nav-item" onclick="showPage('xai',this,'XAI Score Slider')"><span class="nav-icon">📊</span>XAI Score Slider</div>
+  <div class="nav-item" onclick="showPage('forecast',this,'Pre-Crime Forecast')"><span class="nav-icon">🔮</span>Pre-Crime Forecast</div>
+  <div class="nav-section">Defence</div>
+  <div class="nav-item" onclick="showPage('deception',this,'DeceptionGuard')"><span class="nav-icon">🪤</span>DeceptionGuard<span class="nav-star">★</span></div>
+  <div class="nav-section">Legal</div>
+  <div class="nav-item" onclick="showPage('evidence',this,'Evidence & STR')"><span class="nav-icon">⚖️</span>Evidence & STR<span class="nav-badge teal" id="ev-count-badge">2</span></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="cinematic" onclick="openCinematic()">
+    <div class="cin-play">▶</div>
+    <div class="cin-text">
+      <div class="cin-title">Cinematic Fraud Story — Employee 4471 · 14 March 2026, 2:47 AM</div>
+      <div class="cin-sub">Click to watch the 10-second animated fraud detection timeline · Auto-plays on demo trigger</div>
+    </div>
+    <div class="cin-dots"><div class="cin-dot active"></div><div class="cin-dot active"></div><div class="cin-dot active"></div><div class="cin-dot"></div><div class="cin-dot"></div></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card" style="--accent:var(--red)"><div class="stat-label">Highest Threat</div><div class="stat-value">96/100</div><div class="stat-sub">Employee 4471 · 2:47 AM</div></div>
+    <div class="stat-card" style="--accent:var(--red)"><div class="stat-label">Critical Alerts</div><div class="stat-value">3</div><div class="stat-sub">Require immediate action</div></div>
+    <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">Agents Running</div><div class="stat-value">8/8</div><div class="stat-sub">All systems operational</div></div>
+    <div class="stat-card" style="--accent:var(--gold)"><div class="stat-label">STR Reports Ready</div><div class="stat-value" id="dash-str-count">2</div><div class="stat-sub">Auto-generated · 3 seconds</div></div>
+  </div>
+  <div class="col-70-30">
+    <div>
+      <div class="card mb12">
+        <div class="section-head mb8"><div class="section-title">Live Alert Feed</div><div class="section-badge live-badge">● Real-time</div></div>
+        <div class="alert-list">
+          <div class="alert-row critical" onclick="openModal('emp4471')"><div class="alert-score score-crit">96</div><div class="alert-info"><div class="alert-name">Employee 4471 — Branch Manager, Mumbai</div><div class="alert-detail">2:47 AM · 4,847 records accessed · ₹47L SWIFT transfer · Unknown IP 10.58.201.99</div></div><div class="alert-tag tag-crit">CRITICAL</div></div>
+          <div class="alert-row critical" onclick="openModal('emp2209')"><div class="alert-score score-crit">84</div><div class="alert-info"><div class="alert-name">Employee 2209 — Loan Officer</div><div class="alert-detail">Collusion pattern detected · NetworkIntel score 78 · Temporal KG match</div></div><div class="alert-tag tag-crit">CRITICAL</div></div>
+          <div class="alert-row high" onclick="openModal('emp0847')"><div class="alert-score score-high">71</div><div class="alert-info"><div class="alert-name">Employee 0847 — Teller, Pune Branch</div><div class="alert-detail">Structuring pattern · ₹9.8L ₹9.7L ₹9.6L · All below ₹10L threshold</div></div><div class="alert-tag tag-high">HIGH</div></div>
+          <div class="alert-row medium"><div class="alert-score score-med">58</div><div class="alert-info"><div class="alert-name">Vendor API — PaymentGateway Ltd</div><div class="alert-detail">400% volume spike · Unusual endpoint access · 1:22 AM</div></div><div class="alert-tag tag-mon">MONITOR</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head mb8"><div class="section-title">8-Agent Status</div><div class="section-badge live-badge">All Active</div></div>
+        <div class="agent-grid">
+          <div class="agent-card"><div><div class="agent-name">BehaviorWatch</div><div class="fs11 text-muted mono">LSTM · Isolation Forest</div></div><div class="agent-score a-red">94</div></div>
+          <div class="agent-card"><div><div class="agent-name">FundFlow</div><div class="fs11 text-muted mono">GNN · NetworkX</div></div><div class="agent-score a-gold">71</div></div>
+          <div class="agent-card"><div><div class="agent-name">VendorGuard</div><div class="fs11 text-muted mono">API Analytics</div></div><div class="agent-score a-blue">58</div></div>
+          <div class="agent-card"><div><div class="agent-name">ComplaintSignal</div><div class="fs11 text-muted mono">NLP · Gemini</div></div><div class="agent-score a-blue">42</div></div>
+          <div class="agent-card"><div><div class="agent-name">NetworkIntel</div><div class="fs11 text-muted mono">GNN · Louvain</div></div><div class="agent-score a-gold">78</div></div>
+          <div class="agent-card"><div><div class="agent-name">RegulatoryAI</div><div class="fs11 text-muted mono">RAG · RBI Rules</div></div><div class="agent-score a-teal" style="font-size:12px">OK</div></div>
+          <div class="agent-card"><div><div class="agent-name">EvidenceBuilder</div><div class="fs11 text-muted mono">PDF · SHA-256</div></div><div class="agent-score a-teal" style="font-size:12px">Ready</div></div>
+          <div class="agent-card" style="border-color:rgba(255,59,92,0.3)"><div><div class="agent-name" style="color:var(--red)">DeceptionGuard ★</div><div class="fs11 text-muted mono">Mirage · Active</div></div><div class="agent-score a-gold" style="font-size:12px">Watch</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="section-head mb8"><div class="section-title">Employee Risk Heatmap</div></div>
+        <div class="heatmap-list">
+          <div class="heatmap-row"><div class="heatmap-name">Emp 4471</div><div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:96%;background:var(--red)"></div></div><div class="heatmap-val" style="color:var(--red)">96</div></div>
+          <div class="heatmap-row"><div class="heatmap-name">Emp 2209</div><div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:84%;background:var(--red)"></div></div><div class="heatmap-val" style="color:var(--red)">84</div></div>
+          <div class="heatmap-row"><div class="heatmap-name">Emp 0847</div><div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:71%;background:var(--gold)"></div></div><div class="heatmap-val" style="color:var(--gold)">71</div></div>
+          <div class="heatmap-row"><div class="heatmap-name">Emp 1203</div><div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:58%;background:var(--blue)"></div></div><div class="heatmap-val" style="color:var(--blue)">58</div></div>
+          <div class="heatmap-row"><div class="heatmap-name">Emp 3341</div><div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:34%;background:var(--teal)"></div></div><div class="heatmap-val" style="color:var(--teal)">34</div></div>
+          <div class="heatmap-row"><div class="heatmap-name">Emp 0291</div><div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:18%;background:var(--teal)"></div></div><div class="heatmap-val" style="color:var(--teal)">18</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head mb8"><div class="section-title">Pre-Crime 24h Forecast</div></div>
+        <div class="forecast-row"><div class="fc-day">Today</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:35%;background:var(--teal)"></div></div><div class="fc-score" style="color:var(--teal)">35</div></div>
+        <div class="forecast-row"><div class="fc-day">Tomorrow</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:78%;background:var(--gold)"></div></div><div class="fc-score" style="color:var(--gold)">78</div><div class="fc-label" style="background:rgba(255,209,102,0.15);color:var(--gold)">HIGH</div></div>
+        <div class="forecast-row"><div class="fc-day">Day +2</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:91%;background:var(--red)"></div></div><div class="fc-score" style="color:var(--red)">91</div><div class="fc-label" style="background:rgba(255,59,92,0.15);color:var(--red)">CRIT</div></div>
+      </div>
+      <div class="card" style="border-color:rgba(255,209,102,0.2);background:rgba(255,209,102,0.03)">
+        <div class="section-head mb8"><div class="section-title" style="color:var(--gold)">★ DeceptionGuard</div></div>
+        <div class="flex items-center gap8 mb8"><div style="font-size:32px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--gold)">10</div><div class="fs11 text-muted">Mirage accounts<br>active</div></div>
+        <div class="fs11 text-muted">Emp 4471 monitoring active</div>
+        <div class="mt8"><span class="badge b-watch mono">WATCH MODE</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLOYEES -->
+<div class="page" id="page-employees">
+  <div class="page-header"><div class="page-title">Employee Watch</div><div class="page-sub">Real-time behavioral monitoring · 847 employees tracked · 12 anomalies detected</div></div>
+  <div class="stats-row">
+    <div class="stat-card" style="--accent:var(--red)"><div class="stat-label">Critical Risk</div><div class="stat-value">3</div><div class="stat-sub">Score above 80</div></div>
+    <div class="stat-card" style="--accent:var(--gold)"><div class="stat-label">High Risk</div><div class="stat-value">9</div><div class="stat-sub">Score 60–80</div></div>
+    <div class="stat-card" style="--accent:var(--blue)"><div class="stat-label">Under Watch</div><div class="stat-value">24</div><div class="stat-sub">Score 40–60</div></div>
+    <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">Normal</div><div class="stat-value">811</div><div class="stat-sub">Score below 40</div></div>
+  </div>
+  <div class="card">
+    <div class="section-head mb12"><div class="section-title">All Employees — Sorted by Risk</div><span class="section-badge live-badge">● Live</span></div>
+    <table class="emp-table w100">
+      <thead><tr><th>Employee</th><th>Role</th><th>Branch</th><th>Risk Score</th><th>Last Activity</th><th>Top Signal</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr onclick="openModal('emp4471')" style="cursor:pointer"><td class="mono fw6">Emp 4471</td><td>Branch Manager</td><td>Mumbai Central</td><td><span class="text-red fw7 mono">96</span><div class="risk-bar" style="width:60px;background:var(--red)"></div></td><td class="mono fs11">2:47 AM today</td><td class="fs11 text-red">Off-hours bulk access</td><td><span class="badge b-crit">CRITICAL</span></td></tr>
+        <tr onclick="openModal('emp2209')" style="cursor:pointer"><td class="mono fw6">Emp 2209</td><td>Loan Officer</td><td>Delhi NCR</td><td><span class="text-red fw7 mono">84</span><div class="risk-bar" style="width:50px;background:var(--red)"></div></td><td class="mono fs11">11:34 PM</td><td class="fs11 text-red">Collusion ring detected</td><td><span class="badge b-crit">CRITICAL</span></td></tr>
+        <tr onclick="openModal('emp0847')" style="cursor:pointer"><td class="mono fw6">Emp 0847</td><td>Teller</td><td>Pune West</td><td><span class="text-gold fw7 mono">71</span><div class="risk-bar" style="width:43px;background:var(--gold)"></div></td><td class="mono fs11">3:12 PM</td><td class="fs11 text-gold">Structuring pattern</td><td><span class="badge b-high">HIGH</span></td></tr>
+        <tr onclick="openModal('emp1203')" style="cursor:pointer"><td class="mono fw6">Emp 1203</td><td>IT Admin</td><td>HQ Chennai</td><td><span class="text-blue fw7 mono">58</span><div class="risk-bar" style="width:35px;background:var(--blue)"></div></td><td class="mono fs11">9:45 AM</td><td class="fs11 text-blue">Privilege escalation</td><td><span class="badge b-med">MEDIUM</span></td></tr>
+        <tr><td class="mono fw6">Emp 3341</td><td>Credit Analyst</td><td>Bangalore</td><td><span style="color:var(--blue)" class="fw7 mono">34</span><div class="risk-bar" style="width:20px;background:var(--teal)"></div></td><td class="mono fs11">2:30 PM</td><td class="fs11 text-muted">Minor anomaly</td><td><span class="badge b-watch">WATCH</span></td></tr>
+        <tr><td class="mono fw6">Emp 0291</td><td>Relationship Mgr</td><td>Hyderabad</td><td><span class="text-teal fw7 mono">18</span><div class="risk-bar" style="width:11px;background:var(--teal)"></div></td><td class="mono fs11">4:15 PM</td><td class="fs11 text-muted">Normal activity</td><td><span class="badge b-low">NORMAL</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ALERTS -->
+<div class="page" id="page-alerts">
+  <div class="page-header"><div class="page-title">Live Alerts</div><div class="page-sub">All active alerts · Sorted by severity · Updated every 0.3 seconds</div></div>
+  <div class="stats-row">
+    <div class="stat-card" style="--accent:var(--red)"><div class="stat-label">Critical</div><div class="stat-value">3</div><div class="stat-sub">Immediate action needed</div></div>
+    <div class="stat-card" style="--accent:var(--gold)"><div class="stat-label">High</div><div class="stat-value">7</div><div class="stat-sub">Review within 1 hour</div></div>
+    <div class="stat-card" style="--accent:var(--blue)"><div class="stat-label">Medium</div><div class="stat-value">14</div><div class="stat-sub">Monitor closely</div></div>
+    <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">Resolved Today</div><div class="stat-value">28</div><div class="stat-sub">Auto + manual</div></div>
+  </div>
+  <div class="card">
+    <div class="section-head mb12"><div class="section-title">Alert Feed</div><div class="section-badge live-badge">● Real-time</div></div>
+    <div class="alert-list">
+      <div class="alert-row critical" onclick="openModal('emp4471')"><div class="alert-score score-crit">96</div><div class="alert-info"><div class="alert-name">Employee 4471 — Branch Manager, Mumbai Central</div><div class="alert-detail">2:47 AM · 4,847 records · ₹47L SWIFT · Unknown IP · BehaviorWatch 94 + FundFlow 71 + NetworkIntel 78 → Orchestrator 96</div></div><div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><div class="alert-tag tag-crit">CRITICAL</div><div class="fs11 mono text-muted">0:23 ago</div></div></div>
+      <div class="alert-row critical" onclick="openModal('emp2209')"><div class="alert-score score-crit">84</div><div class="alert-info"><div class="alert-name">Employee 2209 — Loan Officer, Delhi NCR</div><div class="alert-detail">Collusion ring · NetworkIntel 78 · 3 employees accessing same accounts in 4-min window · Temporal KG match</div></div><div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><div class="alert-tag tag-crit">CRITICAL</div><div class="fs11 mono text-muted">1:12 ago</div></div></div>
+      <div class="alert-row high" onclick="openModal('emp0847')"><div class="alert-score score-high">71</div><div class="alert-info"><div class="alert-name">Employee 0847 — Teller, Pune West</div><div class="alert-detail">Structuring: ₹9.8L + ₹9.7L + ₹9.6L on same day · All just below ₹10L reporting threshold</div></div><div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><div class="alert-tag tag-high">HIGH</div><div class="fs11 mono text-muted">2:45 ago</div></div></div>
+      <div class="alert-row medium" onclick="openModal('emp1203')"><div class="alert-score score-med">58</div><div class="alert-info"><div class="alert-name">Employee 1203 — IT Admin, HQ Chennai</div><div class="alert-detail">400% API call volume spike · Unusual endpoint /export-bulk · 1:22 AM access</div></div><div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><div class="alert-tag tag-mon">MONITOR</div><div class="fs11 mono text-muted">6:10 ago</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- XAI -->
+<div class="page" id="page-xai">
+  <div class="page-header"><div class="page-title">XAI Score Slider</div><div class="page-sub">Counterfactual explainability · Drag sliders to see why Employee 4471 was flagged</div></div>
+  <div class="two-col">
+    <div>
+      <div class="xai-wrap mb12">
+        <div class="section-head mb12"><div class="section-title">Employee 4471 — Live Risk Score</div><span class="badge b-crit mono">CRITICAL</span></div>
+        <div class="flex items-center gap16 mb12">
+          <div><div class="xai-score-big" id="xai-score" style="color:var(--red)">96</div><div class="xai-score-label">/ 100 Unified Threat Score</div></div>
+          <div style="flex:1"><div class="fs12 text-muted mb8">Drag any slider to see what would need to change for the alert to not fire. RBI-compliant explainable AI.</div>
+          <div class="factor-tags"><span class="factor-tag text-red" style="border-color:rgba(255,59,92,0.3)">Off-hours login +28pts</span><span class="factor-tag text-gold" style="border-color:rgba(255,209,102,0.3)">Bulk data +22pts</span><span class="factor-tag text-blue" style="border-color:rgba(74,158,255,0.3)">Unknown IP +18pts</span><span class="factor-tag text-muted">Large transfer +16pts</span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title mb12">Adjust Risk Factors</div>
+        <div class="slider-row"><div class="slider-label"><span class="slider-name">Login Time</span><span class="slider-val" id="s1-val">2:47 AM</span><span class="slider-impact" id="s1-impact">+28 pts</span></div><input type="range" min="0" max="23" value="2" id="s1" oninput="updateXAI()"><div class="fs11 text-muted mt8">0 = midnight · 23 = 11PM · Normal range: 9AM–6PM</div></div>
+        <div class="sep"></div>
+        <div class="slider-row"><div class="slider-label"><span class="slider-name">Records Accessed</span><span class="slider-val" id="s2-val">4,847</span><span class="slider-impact" id="s2-impact">+22 pts</span></div><input type="range" min="1" max="5000" value="4847" id="s2" oninput="updateXAI()"><div class="fs11 text-muted mt8">Normal for this role: under 200 records/day</div></div>
+        <div class="sep"></div>
+        <div class="slider-row"><div class="slider-label"><span class="slider-name">Transfer Amount (Lakhs)</span><span class="slider-val" id="s3-val">₹47L</span><span class="slider-impact" id="s3-impact">+16 pts</span></div><input type="range" min="0" max="100" value="47" id="s3" oninput="updateXAI()"><div class="fs11 text-muted mt8">In Lakhs · Threshold: ₹10L triggers flag</div></div>
+        <div class="sep"></div>
+        <div class="slider-row"><div class="slider-label"><span class="slider-name">IP Familiarity</span><span class="slider-val" id="s4-val">Unknown</span><span class="slider-impact" id="s4-impact">+18 pts</span></div><input type="range" min="0" max="10" value="0" id="s4" oninput="updateXAI()"><div class="fs11 text-muted mt8">0 = Unknown IP · 10 = Registered device</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="card mb12">
+        <div class="section-title mb12">Score Breakdown</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div><div class="flex justify-between mb8"><span class="fs12">BehaviorWatch</span><span class="fw7 mono text-red" id="bw-score">94</span></div><div style="background:var(--bg4);border-radius:3px;height:6px"><div id="bw-bar" style="width:94%;height:100%;background:var(--red);border-radius:3px;transition:width 0.4s"></div></div></div>
+          <div><div class="flex justify-between mb8"><span class="fs12">FundFlow</span><span class="fw7 mono text-gold">71</span></div><div style="background:var(--bg4);border-radius:3px;height:6px"><div style="width:71%;height:100%;background:var(--gold);border-radius:3px"></div></div></div>
+          <div><div class="flex justify-between mb8"><span class="fs12">NetworkIntel</span><span class="fw7 mono text-gold">78</span></div><div style="background:var(--bg4);border-radius:3px;height:6px"><div style="width:78%;height:100%;background:var(--gold);border-radius:3px"></div></div></div>
+          <div><div class="flex justify-between mb8"><span class="fs12">ComplaintSignal</span><span class="fw7 mono text-blue">42</span></div><div style="background:var(--bg4);border-radius:3px;height:6px"><div style="width:42%;height:100%;background:var(--blue);border-radius:3px"></div></div></div>
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(0,229,192,0.15)">
+        <div class="section-title mb8" style="color:var(--teal)">What Would Clear This Alert?</div>
+        <div id="clearance-text" class="fs12 text-muted" style="line-height:1.7">Current score: <span class="text-red fw7 mono">96/100</span> — CRITICAL<br><br>To drop below threshold (40/100), ALL must change:<br><br>• Login time → normal hours (9AM–6PM)<br>• Records accessed → under 200<br>• Transfer amount → under ₹10L<br>• IP address → registered device<br><br><span class="text-teal">This is legally defensible XAI evidence.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DECEPTION -->
+<div class="page" id="page-deception">
+  <div class="page-header"><div class="page-title">DeceptionGuard ★</div><div class="page-sub">Mirage Account System · Active traps for Employee 4471 · Zero false positives guaranteed</div></div>
+  <div class="stats-row">
+    <div class="stat-card" style="--accent:var(--gold)"><div class="stat-label">Mirage Accounts</div><div class="stat-value">10</div><div class="stat-sub">Active traps</div></div>
+    <div class="stat-card" style="--accent:var(--red)"><div class="stat-label">Employees Monitored</div><div class="stat-value">3</div><div class="stat-sub">Risk score above 70</div></div>
+    <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">Triggered Today</div><div class="stat-value" id="trig-count">0</div><div class="stat-sub">Access attempts</div></div>
+    <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">False Positives</div><div class="stat-value">0</div><div class="stat-sub">Mathematically impossible</div></div>
+  </div>
+  <div class="card mb12">
+    <div class="section-head mb12"><div class="section-title">10 Active Mirage Accounts</div><div class="flex gap8 items-center"><span class="fs11 text-muted">Visible only to Emp 4471 (score 96)</span><button class="btn btn-red" onclick="simulateTrap()" id="trap-btn">Simulate Access by Fraudster</button></div></div>
+    <div class="mirage-grid" id="mirage-grid">
+      <div class="mirage-account" id="ma-0"><div class="trap-label">TRAP</div><div class="ma-name">Rajesh Sharma</div><div class="ma-bal">₹2.4 Cr</div><div class="ma-acc">ACC-847291</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-1"><div class="trap-label">TRAP</div><div class="ma-name">Priya Nair</div><div class="ma-bal">₹1.8 Cr</div><div class="ma-acc">ACC-392847</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-2"><div class="trap-label">TRAP</div><div class="ma-name">Vikram Patel</div><div class="ma-bal">₹3.1 Cr</div><div class="ma-acc">ACC-571038</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-3"><div class="trap-label">TRAP</div><div class="ma-name">Sunita Reddy</div><div class="ma-bal">₹4.7 Cr</div><div class="ma-acc">ACC-128475</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-4"><div class="trap-label">TRAP</div><div class="ma-name">Arjun Mehta</div><div class="ma-bal">₹2.2 Cr</div><div class="ma-acc">ACC-903841</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-5"><div class="trap-label">TRAP</div><div class="ma-name">Deepa Singh</div><div class="ma-bal">₹1.5 Cr</div><div class="ma-acc">ACC-674920</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-6"><div class="trap-label">TRAP</div><div class="ma-name">Amit Joshi</div><div class="ma-bal">₹5.9 Cr</div><div class="ma-acc">ACC-204857</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-7"><div class="trap-label">TRAP</div><div class="ma-name">Kavita Iyer</div><div class="ma-bal">₹3.3 Cr</div><div class="ma-acc">ACC-739481</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-8"><div class="trap-label">TRAP</div><div class="ma-name">Suresh Kumar</div><div class="ma-bal">₹2.8 Cr</div><div class="ma-acc">ACC-582039</div><div class="ma-status text-teal">● Monitoring</div></div>
+      <div class="mirage-account" id="ma-9"><div class="trap-label">TRAP</div><div class="ma-name">Anita Desai</div><div class="ma-bal">₹6.2 Cr</div><div class="ma-acc">ACC-419372</div><div class="ma-status text-teal">● Monitoring</div></div>
+    </div>
+  </div>
+  <div class="card" id="trap-result" style="display:none;border-color:rgba(255,59,92,0.4);background:rgba(255,59,92,0.05)">
+    <div class="section-head mb12"><div class="section-title text-red">MIRAGE ACCOUNT ACCESSED — FRAUD CONFIRMED</div><span class="badge b-crit mono">100/100</span></div>
+    <div class="three-col">
+      <div class="card-sm"><div class="fs11 text-muted mono mb8">ALERT SCORE</div><div style="font-size:48px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--red);line-height:1">100</div><div class="fs11 text-muted">/100 — CONFIRMED FRAUD</div></div>
+      <div class="card-sm"><div class="fs11 text-muted mono mb8">EVIDENCE GENERATED</div><div class="fs13 fw6 text-teal mb8">SHA-256 Signed in 0.1s</div><div class="hash-box">sha256:a3f8c2e1d4b79f0e...</div><div class="fs11 text-muted">Blockchain immutable · Hyperledger Fabric</div></div>
+      <div class="card-sm"><div class="fs11 text-muted mono mb8">LEGAL STATUS</div><div class="fs13 fw6 text-teal mb8">Court-admissible</div><div class="fs11 text-muted">FIU-IND STR auto-filed<br>RBI Master Directions 2024<br>Zero false positive guarantee</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EVIDENCE PAGE — with dynamic container -->
+<div class="page" id="page-evidence">
+  <div class="page-header"><div class="page-title">Evidence & STR</div><div class="page-sub">Court-admissible investigation packages · Blockchain secured · FIU-IND compliant</div></div>
+  <div class="stats-row">
+    <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">Reports Ready</div><div class="stat-value" id="ev-reports-count">2</div><div class="stat-sub">Generated in 3 seconds</div></div>
+    <div class="stat-card" style="--accent:var(--gold)"><div class="stat-label">STR Filed</div><div class="stat-value" id="ev-str-count">2</div><div class="stat-sub">Auto-submitted to FIU-IND</div></div>
+    <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">Blockchain Hashed</div><div class="stat-value" id="ev-hash-count">2</div><div class="stat-sub">SHA-256 · Hyperledger</div></div>
+    <div class="stat-card" style="--accent:var(--blue)"><div class="stat-label">Time Saved</div><div class="stat-value" style="font-size:20px">3 days</div><div class="stat-sub">vs manual (was 3 days)</div></div>
+  </div>
+  <div class="col-70-30">
+    <div>
+      <div class="card">
+        <div class="section-head mb12"><div class="section-title">Investigation Packages</div><button class="btn btn-teal fs12" onclick="generateEvidenceFor('EMP-NEW','New Employee','Role',70,'GENERIC_ALERT')">+ Generate New Report</button></div>
+        <!-- Dynamic evidence list — new cards appear here -->
+        <div id="evidence-list">
+          <div class="evidence-card">
+            <div class="ev-head">
+              <div><div class="ev-title">EVD-2026-0047 · Employee 4471 — Branch Manager</div><div class="ev-hash mono">SHA256: a3f8c2e1d4b79f0e6a2c5d8e1f4b7c0a3e6f9d2b5...</div></div>
+              <div class="flex gap8"><span class="badge b-crit">CRITICAL · 96/100</span><button class="btn btn-outline fs12" onclick="downloadPDF('EMP4471','Ramesh Kumar Gupta','96','Branch Manager')">Download PDF</button></div>
+            </div>
+            <div class="ev-meta"><span>Generated: 14 Mar 2026, 2:47:32 AM</span><span>Duration: 3.1 seconds</span><span>Pages: 24</span><span class="text-teal">● STR Filed to FIU-IND</span></div>
+          </div>
+          <div class="evidence-card">
+            <div class="ev-head">
+              <div><div class="ev-title">EVD-2026-0046 · Employee 2209 — Loan Officer</div><div class="ev-hash mono">SHA256: b7e2f1a4c8d3e9f0b5a2c7e1d4f8b3a6c9f2e5d8...</div></div>
+              <div class="flex gap8"><span class="badge b-crit">CRITICAL · 84/100</span><button class="btn btn-outline fs12" onclick="downloadPDF('EMP2209','Priya Sharma','84','Loan Officer')">Download PDF</button></div>
+            </div>
+            <div class="ev-meta"><span>Generated: 13 Mar 2026, 11:34:18 PM</span><span>Duration: 2.8 seconds</span><span>Pages: 18</span><span class="text-teal">● STR Filed to FIU-IND</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card mb12">
+        <div class="section-title mb12">Blockchain Verification</div>
+        <div class="fs12 text-muted mb8">Every alert is hashed and stored immutably on Hyperledger Fabric. Evidence cannot be tampered with.</div>
+        <div class="hash-box" id="blockchain-box">Block #47291<br>SHA256: a3f8c2e1d4b79f0e...<br>Timestamp: 2026-03-14T02:47:32Z<br>Node: VM-NODE-MUM-01<br>Status: CONFIRMED</div>
+        <div class="flex gap8 mt8"><span class="badge b-low">✓ Immutable</span><span class="badge b-low">✓ Court-admissible</span><span class="badge b-low">✓ RBI 2024</span></div>
+      </div>
+      <div class="card" id="str-status-card">
+        <div class="section-title mb12">FIU-IND STR Status</div>
+        <div id="str-list">
+          <div class="card-sm mb8"><div class="flex justify-between items-center"><div class="fs12">STR-2026-MUM-4471</div><span class="badge b-low">Filed</span></div><div class="fs11 text-muted mono mt8">Submitted: 2:47:35 AM · 3.1s total</div></div>
+          <div class="card-sm"><div class="flex justify-between items-center"><div class="fs12">STR-2026-DEL-2209</div><span class="badge b-low">Filed</span></div><div class="fs11 text-muted mono mt8">Submitted: 11:34:21 PM · 2.8s total</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORECAST -->
+<div class="page" id="page-forecast">
+  <div class="page-header"><div class="page-title">Pre-Crime 24h Forecast</div><div class="page-sub">Markov chain model predicts tomorrow's fraud risk today · Not reactive — predictive</div></div>
+  <div class="stats-row">
+    <div class="stat-card" style="--accent:var(--red)"><div class="stat-label">High Risk Tomorrow</div><div class="stat-value">3</div><div class="stat-sub">Predicted score above 70</div></div>
+    <div class="stat-card" style="--accent:var(--gold)"><div class="stat-label">Prediction Accuracy</div><div class="stat-value">87%</div><div class="stat-sub">Based on test scenarios</div></div>
+    <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">Employees Modelled</div><div class="stat-value">847</div><div class="stat-sub">All employees</div></div>
+    <div class="stat-card" style="--accent:var(--blue)"><div class="stat-label">Model</div><div class="stat-value" style="font-size:16px">Markov</div><div class="stat-sub">Chain sequence analysis</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="section-head mb12"><div class="section-title">Emp 4471 — 7-Day Risk Trajectory</div><span class="badge b-crit">High Risk Predicted</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="forecast-row"><div class="fc-day mono">Mar 8 (past)</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:22%;background:var(--teal)"></div></div><div class="fc-score" style="color:var(--teal)">22</div><div class="fc-label" style="background:rgba(0,229,192,0.1);color:var(--teal)">LOW</div></div>
+        <div class="forecast-row"><div class="fc-day mono">Mar 12 (past)</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:48%;background:var(--blue)"></div></div><div class="fc-score" style="color:var(--blue)">48</div><div class="fc-label" style="background:rgba(74,158,255,0.15);color:var(--blue)">MED</div></div>
+        <div class="forecast-row" style="border:1px solid rgba(255,59,92,0.2);border-radius:6px"><div class="fc-day mono text-red fw6">Mar 14 (today)</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:96%;background:var(--red)"></div></div><div class="fc-score" style="color:var(--red)">96</div><div class="fc-label" style="background:rgba(255,59,92,0.15);color:var(--red)">CRIT</div></div>
+        <div class="forecast-row"><div class="fc-day mono">Mar 15 (pred)</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:78%;background:var(--gold);opacity:0.7"></div></div><div class="fc-score" style="color:var(--gold)">78</div><div class="fc-label" style="background:rgba(255,209,102,0.15);color:var(--gold)">HIGH</div></div>
+        <div class="forecast-row"><div class="fc-day mono">Mar 16 (pred)</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:91%;background:var(--red);opacity:0.7"></div></div><div class="fc-score" style="color:var(--red)">91</div><div class="fc-label" style="background:rgba(255,59,92,0.15);color:var(--red)">CRIT</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="section-title mb12">Top Risk Employees — Tomorrow</div>
+        <div class="forecast-row"><div class="fc-day mono">Emp 4471</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:78%;background:var(--gold)"></div></div><div class="fc-score" style="color:var(--gold)">78</div><div class="fc-label" style="background:rgba(255,209,102,0.15);color:var(--gold)">HIGH</div></div>
+        <div class="forecast-row"><div class="fc-day mono">Emp 2209</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:64%;background:var(--blue)"></div></div><div class="fc-score" style="color:var(--blue)">64</div><div class="fc-label" style="background:rgba(74,158,255,0.15);color:var(--blue)">MED</div></div>
+        <div class="forecast-row"><div class="fc-day mono">Emp 0847</div><div class="fc-bar-wrap"><div class="fc-bar" style="width:51%;background:var(--blue)"></div></div><div class="fc-score" style="color:var(--blue)">51</div><div class="fc-label" style="background:rgba(74,158,255,0.15);color:var(--blue)">MED</div></div>
+      </div>
+      <div class="card">
+        <div class="section-title mb12">How the Model Works</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="card-sm"><div class="fs12 fw6 text-teal mb4">Step 1 — Behavioral Sequence</div><div class="fs11 text-muted">90-day rolling window of every employee's actions stored as state sequences</div></div>
+          <div class="card-sm"><div class="fs12 fw6 text-teal mb4">Step 2 — Transition Matrix</div><div class="fs11 text-muted">Markov chain calculates probability of moving from current state to risky state tomorrow</div></div>
+          <div class="card-sm"><div class="fs12 fw6 text-gold mb4">Step 3 — Risk Score Output</div><div class="fs11 text-muted">Predicted score 0–100 generated for each employee 24 hours in advance</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<script>
+// ══ NAVIGATION ══
+function showPage(id,el,label){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  var pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('page-label').textContent=label;
+}
+
+// ══ CINEMATIC ══
+var cinEvents=[
+  {t:'09:15 AM',d:'Normal login from registered IP — Mumbai branch office',s:12,crit:false},
+  {t:'10:30 AM',d:'23 customer records accessed — within daily baseline',s:14,crit:false},
+  {t:'02:15 PM',d:'4 standard NEFT transactions processed — avg ₹82,000',s:11,crit:false},
+  {t:'06:30 PM',d:'Normal logout — session closed',s:12,crit:false},
+  {t:'02:47 AM',d:'LOGIN DETECTED — Unknown IP 10.58.201.99 — Off-hours',s:45,crit:true},
+  {t:'02:48 AM',d:'4,847 CUSTOMER RECORDS DOWNLOADING — 210× above baseline',s:78,crit:true},
+  {t:'02:49 AM',d:'₹47,00,000 SWIFT TRANSFER INITIATED — Unauthorized',s:92,crit:true},
+  {t:'02:49:18',d:'VAULTMIND ORCHESTRATOR — 96/100 CRITICAL ALERT FIRED',s:96,crit:true},
+  {t:'02:49:19',d:'ACCOUNT ACCESS AUTOMATICALLY FROZEN',s:96,crit:true},
+  {t:'02:49:20',d:'BLOCKCHAIN EVIDENCE GENERATED — SHA-256: a3f8c2e1...',s:96,crit:true},
+];
+function openCinematic(){
+  var overlay=document.getElementById('cin-modal');
+  var container=document.getElementById('cin-events');
+  container.innerHTML='';
+  overlay.classList.add('open');
+  setTimeout(function(){
+    cinEvents.forEach(function(ev,i){
+      setTimeout(function(){
+        var sc=ev.s>70?'#ff3b5c':ev.s>40?'#c47f00':'#00957a';
+        var bc=ev.crit?'#7f1d1d':'#1e3a5f';
+        var dc=ev.crit?'#e8002d':'#00957a';
+        var div=document.createElement('div');
+        div.className='cin-ev visible';
+        div.style.borderLeftColor=bc;
+        div.innerHTML='<div class="cin-ev-dot" style="background:'+dc+'"></div><div class="cin-ev-time">'+ev.t+'</div><div class="cin-ev-desc">'+ev.d+'</div><div class="cin-ev-score" style="color:'+sc+'">'+ev.s+'</div>';
+        container.appendChild(div);
+        container.scrollTop=container.scrollHeight;
+      },i*1000);
+    });
+  },300);
+}
+function closeCinematic(){document.getElementById('cin-modal').classList.remove('open');}
+
+// ══ DEMO ══
+function triggerDemo(){
+  openCinematic();
+  showToast('DEMO TRIGGERED','Employee 4471 fraud scenario — Score: 96/100 CRITICAL');
+  setTimeout(function(){showToast('ORCHESTRATOR','3 weak signals fused → 96/100 in 0.3 seconds');},3000);
+  setTimeout(function(){showToast('DECEPTIONGUARD','Mirage accounts activated for Emp 4471');},6000);
+}
+
+// ══ TOAST ══
+var toastTimer=null;
+function showToast(title,body){
+  var t=document.getElementById('toast');
+  document.getElementById('toast-title').textContent=title;
+  document.getElementById('toast-body').textContent=body;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove('show');},3500);
+}
+
+// ══ GENERATE EVIDENCE FOR SPECIFIC EMPLOYEE ══
+// This is the KEY function — called from modal buttons
+// It creates a NEW visible card on the Evidence page
+var totalReports=2;
+
+function generateEvidenceFor(empId,empName,role,score,alertType){
+  // Navigate to evidence page
+  var evNavItem=document.querySelectorAll('.nav-item')[6];
+  showPage('evidence',evNavItem,'Evidence & STR');
+  // Close modal
+  document.getElementById('modal').classList.remove('open');
+
+  // Generate unique ID and hash
+  totalReports++;
+  var rptId='EVD-2026-'+String(totalReports+44).padStart(4,'0');
+  var chars='abcdef0123456789';
+  var hash='';
+  for(var i=0;i<40;i++) hash+=chars[Math.floor(Math.random()*chars.length)];
+
+  var now=new Date();
+  var duration=(Math.random()*1.5+2).toFixed(1);
+
+  // Score badge class
+  var badgeClass=score>=80?'b-crit':score>=60?'b-high':'b-med';
+  var scoreLabel=score>=80?'CRITICAL':score>=60?'HIGH':'MEDIUM';
+
+  // Create new evidence card HTML
+  var newCard=document.createElement('div');
+  newCard.className='evidence-card new-card';
+  newCard.innerHTML=
+    '<div class="ev-head">'+
+      '<div>'+
+        '<div class="ev-title">'+rptId+' · '+empId+' — '+role+'</div>'+
+        '<div class="ev-hash mono">SHA256: '+hash+'...</div>'+
+      '</div>'+
+      '<div class="flex gap8">'+
+        '<span class="badge '+badgeClass+'">'+scoreLabel+' · '+score+'/100</span>'+
+        '<button class="btn btn-outline fs12" onclick="downloadPDF(\''+empId+'\',\''+empName+'\',\''+score+'\',\''+role+'\')">Download PDF</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="ev-meta">'+
+      '<span>Generated: '+now.toLocaleString('en-IN')+'</span>'+
+      '<span>Duration: '+duration+' seconds</span>'+
+      '<span>Pages: '+Math.floor(Math.random()*10+12)+'</span>'+
+      '<span class="text-teal">● STR Filed to FIU-IND</span>'+
+    '</div>';
+
+  // Insert NEW card at the TOP of evidence list
+  var evList=document.getElementById('evidence-list');
+  evList.insertBefore(newCard,evList.firstChild);
+
+  // Update all counters
+  document.getElementById('ev-reports-count').textContent=totalReports;
+  document.getElementById('ev-str-count').textContent=totalReports;
+  document.getElementById('ev-hash-count').textContent=totalReports;
+  document.getElementById('ev-count-badge').textContent=totalReports;
+  document.getElementById('dash-str-count').textContent=totalReports;
+
+  // Update blockchain box with new hash
+  document.getElementById('blockchain-box').innerHTML=
+    'Block #'+(47291+totalReports-2)+'<br>'+
+    'SHA256: '+hash.substring(0,20)+'...<br>'+
+    'Timestamp: '+now.toISOString()+'<br>'+
+    'Node: VM-NODE-MUM-01<br>'+
+    'Status: CONFIRMED';
+
+  // Add new STR entry at top
+  var newStr=document.createElement('div');
+  newStr.className='card-sm mb8';
+  newStr.innerHTML=
+    '<div class="flex justify-between items-center">'+
+      '<div class="fs12">STR-2026-'+empId.replace('EMP','')+'-'+Math.floor(Math.random()*900+100)+'</div>'+
+      '<span class="badge b-low">Filed</span>'+
+    '</div>'+
+    '<div class="fs11 text-muted mono mt8">Submitted: '+now.toLocaleTimeString()+' · '+duration+'s total</div>';
+  var strList=document.getElementById('str-list');
+  strList.insertBefore(newStr,strList.firstChild);
+
+  // Show success toast
+  showToast('EVIDENCE GENERATED',rptId+' · '+empName+' · '+duration+'s · SHA-256 confirmed');
+}
+
+// ══ MODAL DATA ══
+var modals={
+  emp4471:{
+    title:'Employee 4471 — Branch Manager, Mumbai · Score: 96/100',
+    body:'<div style="display:flex;gap:12px;margin-bottom:16px"><div style="background:rgba(255,59,92,0.1);border:1px solid rgba(255,59,92,0.3);border-radius:8px;padding:12px;flex:1;text-align:center"><div style="font-size:40px;font-weight:700;font-family:\'IBM Plex Mono\',monospace;color:#e8002d">96</div><div style="font-size:11px;color:#8ba3c7">/100 CRITICAL</div></div><div style="flex:3"><div style="font-size:11px;color:#8ba3c7;margin-bottom:6px;font-family:\'IBM Plex Mono\',monospace">ALERT TIMELINE</div><div class="timeline"><div class="tl-item"><div class="tl-dot" style="background:#5a7a99"></div><div class="tl-time">2:47 AM</div><div class="tl-text">Login from unknown IP 10.58.201.99</div></div><div class="tl-item"><div class="tl-dot" style="background:#c47f00"></div><div class="tl-time">2:48 AM</div><div class="tl-text">4,847 customer records accessed (normal: 23/day)</div></div><div class="tl-item"><div class="tl-dot" style="background:#e8002d"></div><div class="tl-time">2:49 AM</div><div class="tl-text">₹47L SWIFT transfer initiated to dormant account</div></div><div class="tl-item"><div class="tl-dot" style="background:#e8002d"></div><div class="tl-time">2:49:18 AM</div><div class="tl-text">ORCHESTRATOR: 3 signals fused → 96/100 CRITICAL</div></div><div class="tl-item"><div class="tl-dot" style="background:#00957a"></div><div class="tl-time">2:49:19 AM</div><div class="tl-text">Account frozen · STR auto-filed · Evidence generated</div></div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-teal" onclick="showPage(\'xai\',document.querySelectorAll(\'.nav-item\')[3],\'XAI Score Slider\');closeModal()">View XAI Explanation</button><button class="btn btn-outline" onclick="generateEvidenceFor(\'EMP4471\',\'Ramesh Kumar Gupta\',\'Branch Manager\',96,\'COORDINATED_FRAUD\')">Generate Evidence</button></div>'
+  },
+  emp2209:{
+    title:'Employee 2209 — Loan Officer, Delhi · Score: 84/100',
+    body:'<div style="background:rgba(255,59,92,0.05);border:1px solid rgba(255,59,92,0.2);border-radius:8px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:12px"><div style="font-size:36px;font-weight:700;font-family:\'IBM Plex Mono\',monospace;color:#e8002d">84</div><div><div style="font-size:12px;font-weight:600;color:#e8002d">CRITICAL — COLLUSION RING</div><div style="font-size:11px;color:#8ba3c7;margin-top:3px">3 employees · same accounts · 4-minute window</div></div></div><div class="timeline mb12"><div class="tl-item"><div class="tl-dot" style="background:#5a7a99"></div><div class="tl-time">10:45 PM</div><div class="tl-text">Emp 2209 accesses loan files for 12 customers</div></div><div class="tl-item"><div class="tl-dot" style="background:#c47f00"></div><div class="tl-time">11:12 PM</div><div class="tl-text">Emp 3847 modifies same 12 loan records</div></div><div class="tl-item"><div class="tl-dot" style="background:#e8002d"></div><div class="tl-time">11:34 PM</div><div class="tl-text">Emp 0219 approves all 12 in 4-minute window</div></div><div class="tl-item"><div class="tl-dot" style="background:#e8002d"></div><div class="tl-time">11:34 PM</div><div class="tl-text">NetworkIntel: Collusion ring detected · Temporal KG match confirmed</div></div><div class="tl-item"><div class="tl-dot" style="background:#00957a"></div><div class="tl-time">11:34 PM</div><div class="tl-text">Score: 84/100 CRITICAL · Enhanced monitoring activated</div></div></div><div style="display:flex;gap:8px"><button class="btn btn-teal" onclick="generateEvidenceFor(\'EMP2209\',\'Priya Sharma\',\'Loan Officer\',84,\'COLLUSION_RING\')">Generate Evidence</button><button class="btn btn-outline" onclick="closeModal()">Flag for Review</button></div>'
+  },
+  emp0847:{
+    title:'Employee 0847 — Teller, Pune West · Score: 71/100',
+    body:'<div style="background:rgba(196,127,0,0.08);border:1px solid rgba(196,127,0,0.25);border-radius:8px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:12px"><div style="font-size:36px;font-weight:700;font-family:\'IBM Plex Mono\',monospace;color:#c47f00">71</div><div><div style="font-size:12px;font-weight:600;color:#c47f00">HIGH RISK — STRUCTURING PATTERN</div><div style="font-size:11px;color:#8ba3c7;margin-top:3px">PMLA Section 12 violation · 5 transactions below ₹10L</div></div></div><div class="timeline mb12"><div class="tl-item"><div class="tl-dot" style="background:#00957a"></div><div class="tl-time">09:15 AM</div><div class="tl-text">Normal shift start — routine teller transactions</div></div><div class="tl-item"><div class="tl-dot" style="background:#c47f00"></div><div class="tl-time">11:32 AM</div><div class="tl-text">Transaction 1: ₹9,87,543 — just below ₹10L threshold</div></div><div class="tl-item"><div class="tl-dot" style="background:#c47f00"></div><div class="tl-time">12:14 PM</div><div class="tl-text">Transaction 2: ₹9,76,821 — same pattern, different account</div></div><div class="tl-item"><div class="tl-dot" style="background:#c47f00"></div><div class="tl-time">01:47 PM</div><div class="tl-text">Transaction 3: ₹9,65,432 — FundFlow agent flags cluster</div></div><div class="tl-item"><div class="tl-dot" style="background:#e8002d"></div><div class="tl-time">03:12 PM</div><div class="tl-text">VaultMind: 5 transactions detected — PMLA Sec 12 structuring violation</div></div><div class="tl-item"><div class="tl-dot" style="background:#00957a"></div><div class="tl-time">03:12 PM</div><div class="tl-text">Score: 71/100 HIGH — Enhanced monitoring activated</div></div></div><div style="background:rgba(196,127,0,0.05);border:1px solid rgba(196,127,0,0.15);border-radius:8px;padding:12px;margin-bottom:12px"><div style="font-size:11px;font-family:\'IBM Plex Mono\',monospace;color:#c47f00;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Structuring Summary</div><div style="font-size:12px;color:#4a6070;line-height:1.6">5 transactions between ₹9.4L and ₹9.9L — all deliberately kept just below the ₹10L mandatory reporting threshold under PMLA Section 12. Total structured: ₹48,27,129.</div></div><div style="display:flex;gap:8px"><button class="btn btn-teal" onclick="generateEvidenceFor(\'EMP0847\',\'Suresh Patel\',\'Teller, Pune West\',71,\'STRUCTURING_PATTERN\')">Generate Evidence</button><button class="btn btn-outline" onclick="closeModal()">Flag for Review</button></div>'
+  },
+  emp1203:{
+    title:'Employee 1203 — IT Admin, HQ Chennai · Score: 58/100',
+    body:'<div style="background:rgba(26,111,212,0.08);border:1px solid rgba(26,111,212,0.2);border-radius:8px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:12px"><div style="font-size:36px;font-weight:700;font-family:\'IBM Plex Mono\',monospace;color:#1a6fd4">58</div><div><div style="font-size:12px;font-weight:600;color:#1a6fd4">MEDIUM — PRIVILEGE ESCALATION</div><div style="font-size:11px;color:#8ba3c7;margin-top:3px">Unauthorized core banking config access · Outside work hours</div></div></div><div class="timeline mb12"><div class="tl-item"><div class="tl-dot" style="background:#00957a"></div><div class="tl-time">09:30 AM</div><div class="tl-text">Normal IT admin login — routine maintenance window</div></div><div class="tl-item"><div class="tl-dot" style="background:#1a6fd4"></div><div class="tl-time">09:45 AM</div><div class="tl-text">Accessed core banking configuration files — read only</div></div><div class="tl-item"><div class="tl-dot" style="background:#c47f00"></div><div class="tl-time">10:12 AM</div><div class="tl-text">Attempted privilege escalation to Database Admin (DBA) role</div></div><div class="tl-item"><div class="tl-dot" style="background:#c47f00"></div><div class="tl-time">10:14 AM</div><div class="tl-text">VendorGuard: unusual API endpoint access detected</div></div><div class="tl-item"><div class="tl-dot" style="background:#00957a"></div><div class="tl-time">10:14 AM</div><div class="tl-text">Score: 58/100 MEDIUM — Under enhanced monitoring</div></div></div><div style="background:rgba(26,111,212,0.05);border:1px solid rgba(26,111,212,0.15);border-radius:8px;padding:12px;margin-bottom:12px"><div style="font-size:11px;font-family:\'IBM Plex Mono\',monospace;color:#1a6fd4;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Risk Assessment</div><div style="font-size:12px;color:#4a6070;line-height:1.6">Privilege escalation attempt to DBA role without authorization ticket. Combined with unusual API access outside normal patterns. Score below critical threshold — under monitoring.</div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="generateEvidenceFor(\'EMP1203\',\'Meena Iyer\',\'IT Admin, Chennai\',58,\'PRIVILEGE_ESCALATION\')">Generate Evidence</button><button class="btn btn-outline" onclick="closeModal()">Flag for Review</button></div>'
+  }
+};
+
+function openModal(id){
+  var m=modals[id];
+  if(!m)return;
+  document.getElementById('modal-title').textContent=m.title;
+  document.getElementById('modal-body').innerHTML=m.body;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('modal'))
+    document.getElementById('modal').classList.remove('open');
+}
+
+// ══ XAI SLIDER ══
+function updateXAI(){
+  var s1=parseInt(document.getElementById('s1').value);
+  var s2=parseInt(document.getElementById('s2').value);
+  var s3=parseInt(document.getElementById('s3').value);
+  var s4=parseInt(document.getElementById('s4').value);
+  var times=['12AM','1AM','2AM','3AM','4AM','5AM','6AM','7AM','8AM','9AM','10AM','11AM','12PM','1PM','2PM','3PM','4PM','5PM','6PM','7PM','8PM','9PM','10PM','11PM'];
+  document.getElementById('s1-val').textContent=times[s1];
+  document.getElementById('s2-val').textContent=s2.toLocaleString();
+  document.getElementById('s3-val').textContent='₹'+s3+'L';
+  var ipL=['Unknown','Unknown','Unknown','Low','Low','Partial','Partial','Known','Known','Registered','Registered'];
+  document.getElementById('s4-val').textContent=ipL[s4];
+  var isNight=s1<=6||s1>=22;
+  var ts=isNight?28:Math.max(0,28-Math.abs(s1-14)*2);
+  var rs=Math.min(22,Math.round((s2/5000)*22));
+  var tr=s3>10?Math.min(16,Math.round((s3/100)*16)):0;
+  var ips=Math.max(0,18-s4*2);
+  var score=Math.min(100,ts+rs+tr+ips+12);
+  document.getElementById('s1-impact').textContent='+'+ts+' pts';
+  document.getElementById('s2-impact').textContent='+'+rs+' pts';
+  document.getElementById('s3-impact').textContent='+'+tr+' pts';
+  document.getElementById('s4-impact').textContent='+'+ips+' pts';
+  var el=document.getElementById('xai-score');
+  el.textContent=score;
+  el.style.color=score>=80?'var(--red)':score>=50?'var(--gold)':'var(--teal)';
+  var bwEl=document.getElementById('bw-score');
+  var bwBar=document.getElementById('bw-bar');
+  if(bwEl){bwEl.textContent=Math.min(94,Math.round(score*0.97));bwBar.style.width=Math.min(94,Math.round(score*0.97))+'%';}
+  var cl=document.getElementById('clearance-text');
+  cl.innerHTML='Current score: <span style="color:'+(score>=80?'var(--red)':score>=50?'var(--gold)':'var(--teal)')+';font-weight:700;font-family:\'IBM Plex Mono\',monospace">'+score+'/100</span> — '+(score>=80?'CRITICAL':score>=50?'HIGH':'LOW RISK')+'<br><br>'+(score<40?'<span style="color:var(--teal)">Score is now below alert threshold (40). This employee would NOT be flagged.</span>':'To drop below threshold, reduce: login time to business hours, records below 200, transfer below ₹10L, use registered device.')+'<br><br><span style="color:var(--teal)">This is legally defensible XAI evidence per RBI Explainability Mandate.</span>';
+}
+
+// ══ DECEPTION GUARD ══
+var trigCount=0;
+function simulateTrap(){
+  var ri=Math.floor(Math.random()*10);
+  var el=document.getElementById('ma-'+ri);
+  el.classList.add('triggered');
+  el.querySelector('.ma-status').innerHTML='<span style="color:var(--red)">ACCESSED — FRAUD CONFIRMED</span>';
+  el.style.borderColor='var(--red)';
+  trigCount++;
+  document.getElementById('trig-count').textContent=trigCount;
+  document.getElementById('trap-result').style.display='block';
+  document.getElementById('trap-btn').textContent='Triggered';
+  document.getElementById('trap-btn').disabled=true;
+  document.getElementById('trap-btn').style.opacity='0.5';
+  showToast('DECEPTIONGUARD TRIGGERED','100/100 Fraud Confirmed · SHA-256 evidence generated in 0.1s');
+}
+
+// ══ PDF DOWNLOAD ══
+function downloadPDF(empId,empName,score,role){
+  var now=new Date();
+  var rptId='EVD-2026-'+Math.floor(Math.random()*9000+1000);
+  var hash='a3f8c2e1d4b79f0e6a2c5d8e1f4b7c0a3e6f9d2b5c8f1a4d7b0e3c6f9a2d5b8';
+  var lines=['====================================================','       VAULTMIND FRAUD INVESTIGATION REPORT','====================================================','Report ID    : '+rptId,'Generated    : '+now.toLocaleString('en-IN'),'System       : VaultMind','Organisation : Union Bank of India','====================================================','','SUBJECT DETAILS','---------------','Employee ID  : '+empId,'Full Name    : '+empName,'Designation  : '+role,'Branch       : Mumbai Main Branch','','UNIFIED THREAT SCORE : '+score+'/100','RISK LEVEL           : CRITICAL','AUTO ACTION          : ACCOUNT FROZEN + RBI NOTIFIED','ALERT FIRED          : 02:47:18 AM on 14 March 2026','RESPONSE TIME        : 0.3 seconds','','VIOLATIONS DETECTED','--------------------','[CRITICAL] RBI Master Directions 2024 Sec 8.3','           Login at 02:47 AM · Unknown IP 10.58.201.99','           4,847 records downloaded (210x above baseline)','','[CRITICAL] FEMA - Unauthorized Foreign Transfer','           SWIFT transfer attempted: Rs 47,00,000','','[HIGH]     PMLA Section 12 - Structuring Pattern','           5 transactions just below Rs 10L threshold','','AGENT SCORES','-------------','Agent 1  BehaviorWatch    : 94/100','Agent 2  FundFlow         : 71/100','Agent 3  VendorGuard      : 58/100','Agent 4  ComplaintSignal  : 42/100','Agent 5  NetworkIntel     : 78/100','Agent 6  RegulatoryAI     : 85/100','Agent 7  EvidenceBuilder  : COMPLETE','Agent 8  DeceptionGuard   : ACTIVE','','EVIDENCE INTEGRITY','-------------------','SHA-256    : '+hash,'Block      : #47291','Blockchain : Hyperledger Fabric','Timestamp  : '+now.toISOString(),'Status     : CONFIRMED - Immutable','','====================================================','VaultMind','===================================================='];
+  var content=lines.join('\n');
+  try{
+    var blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+    var url=window.URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.style.display='none';a.href=url;
+    a.download='VaultMind_'+rptId+'_'+empId+'.txt';
+    document.body.appendChild(a);a.click();
+    window.URL.revokeObjectURL(url);document.body.removeChild(a);
+    showToast('REPORT DOWNLOADED',rptId+' · '+empName+' · Score: '+score+'/100');
+  }catch(e){showToast('ERROR','Download failed.');}
+}
+
+// ══ INIT ══
+window.addEventListener('load',function(){
+  setTimeout(function(){showToast('VAULTMIND ACTIVE','8 agents running · 3 critical alerts · DeceptionGuard watching');},1000);
+});
+</script>
+</body>
+</html>
