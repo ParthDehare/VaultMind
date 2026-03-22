@@ -174,6 +174,87 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   from { opacity: 0; transform: translateX(-10px); }
   to   { opacity: 1; transform: translateX(0); }
 }
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+
+  .sidebar {
+    display: none;
+  }
+
+  .main {
+    margin-left: 0;
+    padding: 12px;
+  }
+
+  .topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .logo-ver {
+    display: none;
+  }
+
+  .status-pill {
+    display: none;
+  }
+
+  .col-70-30 {
+    grid-template-columns: 1fr;
+  }
+
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .three-col {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .agent-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mirage-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .col-70-30 {
+    grid-template-columns: 1fr;
+  }
+
+  .xai-score-big {
+    font-size: 48px;
+  }
+
+  .demo-btn span {
+    display: none;
+  }
+
+  .modal {
+    width: 95vw;
+    padding: 16px;
+  }
+
+  .cin-modal {
+    width: 95vw;
+    padding: 16px;
+  }
+
+  .ev-head {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ev-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
 </style>
 </head>
 <body>
