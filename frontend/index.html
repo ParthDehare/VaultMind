@@ -169,9 +169,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .mono{font-family:'IBM Plex Mono',monospace}
 .text-teal{color:var(--teal)}.text-red{color:var(--red)}.text-gold{color:var(--gold)}.text-blue{color:var(--blue)}.text-muted{color:var(--text2)}
 .fw7{font-weight:700}.fw6{font-weight:600}.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}
+/* Splash fadeIn animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
 </style>
 </head>
 <body>
+  
+
+<!-- SPLASH SCREEN — -->
+<div id="splash" style="position:fixed;inset:0;background:#0a1628;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">
+  <div style="font-size:36px;font-weight:700;color:#ffffff;letter-spacing:-1px;margin-bottom:8px">VaultMind v2.0</div>
+  <div style="font-size:13px;color:#5a7a99;margin-bottom:48px;letter-spacing:2px">FRAUD INTELLIGENCE PLATFORM</div>
+  <div id="splash-agents" style="display:flex;flex-direction:column;gap:10px;width:320px"></div>
+  <div style="margin-top:40px;font-size:11px;color:#5a7a99" id="splash-status">Initializing secure environment...</div>
+</div>
 
 <!-- CINEMATIC MODAL -->
 <div class="cin-modal-overlay" id="cin-modal">
@@ -762,9 +776,106 @@ function downloadPDF(empId,empName,score,role){
 }
 
 // ══ INIT ══
-window.addEventListener('load',function(){
-  setTimeout(function(){showToast('VAULTMIND ACTIVE','8 agents running · 3 critical alerts · DeceptionGuard watching');},1000);
+// ══ SPLASH SCREEN + LIVE COUNTER ══
+var agentNames=[
+  {name:'BehaviorWatch',model:'Isolation Forest + LSTM',score:94,color:'#e8002d'},
+  {name:'FundFlow',model:'NetworkX Graph Analytics',score:71,color:'#c47f00'},
+  {name:'VendorGuard',model:'API Volume Analytics',score:58,color:'#1a6fd4'},
+  {name:'ComplaintSignal',model:'NLP + Gemini Clustering',score:42,color:'#1a6fd4'},
+  {name:'NetworkIntel',model:'Louvain Community Detection',score:78,color:'#c47f00'},
+  {name:'RegulatoryAI',model:'RAG + RBI Rules 2024',score:85,color:'#00957a'},
+  {name:'EvidenceBuilder',model:'SHA-256 + Hyperledger',score:99,color:'#00957a'},
+  {name:'DeceptionGuard',model:'Mirage Account System',score:100,color:'#e8002d'},
+];
+
+window.addEventListener('load', function(){
+  var splash = document.getElementById('splash');
+  var agentContainer = document.getElementById('splash-agents');
+  var statusEl = document.getElementById('splash-status');
+  var delay = 0;
+
+  // Load agents one by one
+  agentNames.forEach(function(agent, i){
+    setTimeout(function(){
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;animation:fadeIn 0.3s ease';
+      row.innerHTML =
+        '<div>' +
+          '<div style="font-size:12px;font-weight:600;color:#ffffff">' + agent.name + '</div>' +
+          '<div style="font-size:10px;color:#5a7a99;margin-top:2px">' + agent.model + '</div>' +
+        '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:' + agent.color + '">' + agent.score + '</div>';
+      agentContainer.appendChild(row);
+
+      if(i === agentNames.length - 1){
+        setTimeout(function(){
+          statusEl.textContent = 'All 8 agents operational · 3 CRITICAL alerts detected';
+          statusEl.style.color = '#e8002d';
+          setTimeout(function(){
+            // Fade out splash
+            splash.style.transition = 'opacity 0.6s ease';
+            splash.style.opacity = '0';
+            setTimeout(function(){
+              splash.style.display = 'none';
+              showToast('VAULTMIND ACTIVE','8 agents running · 3 critical alerts · DeceptionGuard watching');
+              // Start live counter after splash
+              startLiveCounter();
+            }, 600);
+          }, 800);
+        }, 400);
+      }
+    }, i * 280);
+  });
 });
+
+// ══ LIVE COUNTER — ticks every second ══
+function startLiveCounter(){
+  var seconds = 0;
+  var alertTimes = {
+    'emp4471': 23,
+    'emp2209': 72,
+    'emp0847': 165,
+  };
+
+  setInterval(function(){
+    seconds++;
+
+    // Update "X ago" timers in alert feed
+    var timeEls = document.querySelectorAll('.fs11.mono.text-muted');
+    timeEls.forEach(function(el){
+      var txt = el.textContent;
+      if(txt.indexOf('ago') !== -1){
+        // Parse and increment
+        var parts = txt.replace(' ago','').split(':');
+        if(parts.length === 2){
+          var m = parseInt(parts[0]);
+          var s = parseInt(parts[1]) + 1;
+          if(s >= 60){ s = 0; m++; }
+          el.textContent = m + ':' + (s < 10 ? '0'+s : s) + ' ago';
+        }
+      }
+    });
+
+    // Pulse the live badge every second
+    var liveBadges = document.querySelectorAll('.live-badge');
+    liveBadges.forEach(function(b){
+      b.style.opacity = seconds % 2 === 0 ? '1' : '0.6';
+    });
+
+    // Every 30 seconds show a random new alert toast
+    if(seconds % 30 === 0){
+      var alerts = [
+        ['BEHAVIORWATCH', 'Emp 3341 anomaly detected — score rising to 47'],
+        ['FUNDFLOW', 'Structuring pattern — 3 txns below ₹10L threshold'],
+        ['NETWORKINTEL', 'New collusion cluster detected — 2 employees'],
+        ['REGULATORYAI', 'RBI Master Directions check — 1 violation flagged'],
+      ];
+      var pick = alerts[Math.floor(Math.random() * alerts.length)];
+      showToast(pick[0], pick[1]);
+    }
+
+  }, 1000);
+}
 </script>
 </body>
 </html>
