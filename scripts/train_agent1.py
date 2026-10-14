@@ -1,4 +1,4 @@
-"""
+﻿"""
 VaultMind 3.0 - train_agent1.py
 ===================================================================
 Agent 1: BehaviourWatch - Behavioural & Velocity Anomaly Detection
@@ -97,7 +97,7 @@ def main():
 
     if "login_hour" not in df.columns and "timestamp" in df.columns:
         df["login_hour"] = pd.to_datetime(df["timestamp"]).dt.hour
-        
+
     missing_base = [c for c in BASE_FEATURES if c not in df.columns]
     if missing_base:
         print(f"  [X] ERROR: Missing base columns {missing_base}")
@@ -118,12 +118,12 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
-    
+
     neg_count = (y_train == 0).sum()
     pos_count = max(1, (y_train == 1).sum())
     # Calibrated scale_pos_weight directly from true imbalance ratio
     dynamic_spw = float(neg_count / pos_count)
-    
+
     print(f"  [OK] Split -> Train={len(X_train):,} Test={len(X_test):,}")
     print(f"  [OK] Fraud in train={y_train.sum():,} ({y_train.mean()*100:.2f}%)")
     print(f"  [OK] Calibrated scale_pos_weight: {dynamic_spw:.2f}")
@@ -143,7 +143,7 @@ def main():
     # 4. Stratified K-Fold Cross Validation across 5 Folds
     print(f"\n[4/6] Running Stratified 5-Fold Cross Validation...")
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    
+
     cv_roc_aucs = []
     cv_pr_aucs = []
     cv_precisions = []
@@ -182,7 +182,7 @@ def main():
         cv_f1s.append(f1)
         print(f"       Fold {fold}: ROC-AUC={roc_auc:.4f} | PR-AUC={pr_auc:.4f} | F1={f1:.4f} | Recall={rec_score*100:.1f}%")
 
-    print(f"  [OK] 5-Fold CV Summary: ROC-AUC={np.mean(cv_roc_aucs):.4f} (±{np.std(cv_roc_aucs):.4f}) | PR-AUC={np.mean(cv_pr_aucs):.4f}")
+    print(f"  [OK] 5-Fold CV Summary: ROC-AUC={np.mean(cv_roc_aucs):.4f} (Â±{np.std(cv_roc_aucs):.4f}) | PR-AUC={np.mean(cv_pr_aucs):.4f}")
 
     # 5. Train final production model on full training set
     print(f"\n[5/6] Training Final Production XGBoost Classifier...")
