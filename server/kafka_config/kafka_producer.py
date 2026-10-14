@@ -1,4 +1,4 @@
-﻿# vaultmind_producer.py
+# vaultmind_producer.py
 import time
 import json
 from pathlib import Path

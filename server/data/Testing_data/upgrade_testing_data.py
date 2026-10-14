@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import os
 
 def upgrade_data():
@@ -44,7 +44,6 @@ def upgrade_data():
 
     def generate_court_reason(role, action, amount, channel, timestamp):
         amt_str = f"Rs. {amount:,.2f}" if amount else "Rs. 0"
-        time_str = str(timestamp).split(" ")[1] + " IST" if " " in str(timestamp) else "02:24:18 IST"
         if role in ["CORE_DBA", "IT_ADMIN"]:
             return f"The transaction was executed under infrastructure designation {role}. Under Bank Policy Â§4.2, technical administration roles carry zero financial initiation mandate. Execution of monetary transfer of {amt_str} outside core hours constitutes strict segregation-of-duties (SoD) breach."
         if role in ["TELLER", "CLERK"] and (amount > 500000 or action in ["Override", "Approve"]):

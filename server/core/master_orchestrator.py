@@ -1,4 +1,4 @@
-﻿# vaultmind_orchestrator.py
+# vaultmind_orchestrator.py
 import json
 import logging
 import math
@@ -410,7 +410,7 @@ class MasterOrchestrator:
 
         try:
             # Execute database insertion command with RLS x-tenant-id header
-            response = scoped_db.table("evidence_logs").insert(data).execute()
+            scoped_db.table("evidence_logs").insert(data).execute()
             logging.info(f"âœ… [Audit Log] Saved evidence to Supabase DB (Tenant: {tenant_id}) for TXN: {data['transaction_id']}")
         except Exception as e:
             logging.error(f"ðŸ”´ [DB Insert Error]: Failed to save to Supabase. Details: {e}")

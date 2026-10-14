@@ -3,7 +3,7 @@ VaultMind - ML Model Loader
 Loads and caches trained models from server/models/ at startup.
 
 FIXED:
-  - Agent 1: iso_forest â†’ xgb_model, decision_function â†’ predict_proba
+  - Agent 1: iso_forest Ã¢â€ â€™ xgb_model, decision_function Ã¢â€ â€™ predict_proba
   - GNN architecture updated to match upgraded train_agent2.py
     (in_channels=3, hidden=64, dropout, BatchNorm)
   - optimal_threshold loaded from account_mapping.pkl and used at inference
@@ -46,6 +46,8 @@ if TORCH_AVAILABLE:
                 super().__init__()
                 self.lin_l = nn.Linear(in_channels, out_channels, bias=True)
                 self.lin_r = nn.Linear(in_channels, out_channels, bias=False)
+
+
             def forward(self, x, edge_index=None):
                 return self.lin_l(x)
 
@@ -93,7 +95,7 @@ class MLModelService:
     def __init__(self):
         self.xgb_model         = None   # XGBoost classifier (Agent 1) - RENAMED from iso_forest
         self.scaler            = None   # StandardScaler (Agent 1)
-        self.account_mapping   = None   # Account â†’ node index dict
+        self.account_mapping   = None   # Account Ã¢â€ â€™ node index dict
         self.edge_scaler       = None   # Edge scaler for GNN
         self.optimal_threshold = 0.5    # Saved threshold from train_agent2
         self.gnn               = None   # GNN model (Agent 2)
@@ -179,7 +181,7 @@ class MLModelService:
                  amount_vs_user_avg, time_since_last_txn, txn_count_1hr]
 
         Returns:
-            Anomaly score 0â€“100 (higher = more likely fraud), or -1 if unavailable.
+            Anomaly score 0Ã¢â‚¬â€œ100 (higher = more likely fraud), or -1 if unavailable.
         """
         if self.xgb_model is None or self.scaler is None:
             return -1   # Fall back to rule engine
@@ -190,7 +192,7 @@ class MLModelService:
         # XGBoost: predict_proba returns [[prob_normal, prob_fraud]]
         fraud_prob  = self.xgb_model.predict_proba(scaled)[0][1]
 
-        # Convert 0â€“1 probability â†’ 0â€“100 score
+        # Convert 0Ã¢â‚¬â€œ1 probability Ã¢â€ â€™ 0Ã¢â‚¬â€œ100 score
         return float(min(100.0, max(0.0, fraud_prob * 100.0)))
 
     # ------------------------------------------------------------------
@@ -205,7 +207,7 @@ class MLModelService:
             transaction: dict with transaction details.
 
         Returns:
-            Network threat score 0â€“100, or -1 if unavailable.
+            Network threat score 0Ã¢â‚¬â€œ100, or -1 if unavailable.
         """
         if (self.gnn is None or self.account_mapping is None
                 or self.edge_scaler is None or not TORCH_AVAILABLE):
@@ -250,7 +252,7 @@ class MLModelService:
                 prob  = torch.sigmoid(logit).item()
 
             # Use optimal threshold saved from training to decide high/low risk
-            # but still return a continuous 0â€“100 score
+            # but still return a continuous 0Ã¢â‚¬â€œ100 score
             raw_score = prob * 100.0
 
             # Boost score if above optimal threshold (cross-boundary penalty)
@@ -265,3 +267,4 @@ class MLModelService:
 
 # Global singleton
 ml_models = MLModelService()
+

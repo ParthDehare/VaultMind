@@ -1,5 +1,5 @@
-"""
-VaultMind 2.0 — agent4_sentiment_watch.py
+﻿"""
+VaultMind 2.0 â€” agent4_sentiment_watch.py
 ===========================================================================
 Agent 4: SentimentWatch
 ---------------------------------------------------------------------------
@@ -13,35 +13,35 @@ annotation for linguistic markers of:
   - Social engineering phrases
   - Regulatory violation admissions
 
-Design philosophy — three analytical layers:
+Design philosophy â€” three analytical layers:
 
-  Layer 1 — Lexicon TF-IDF Risk Score
+  Layer 1 â€” Lexicon TF-IDF Risk Score
     A hand-curated fraud lexicon assigns a base risk weight to each
     keyword/phrase. The score is NOT a binary hit-counter. Each match
     contributes a weighted TF-IDF-style score:
 
-        contribution_i = weight_i × log(1 + frequency_i) × idf_i
+        contribution_i = weight_i Ã— log(1 + frequency_i) Ã— idf_i
 
     where idf_i is a pre-computed inverse-document-frequency value that
     down-weights common non-suspicious words and up-weights rare high-
     signal phrases like "benami" or "pmla".
 
-  Layer 2 — Semantic Cluster Amplification
-    Fraud rarely appears as a single keyword — it clusters. If hits span
+  Layer 2 â€” Semantic Cluster Amplification
+    Fraud rarely appears as a single keyword â€” it clusters. If hits span
     multiple semantic categories (e.g., both COERCION and URGENCY fire),
     a multiplicative amplification factor is applied to the base score.
     This models the linguistic co-occurrence patterns observed in real
     whistle-blower complaint analysis.
 
-  Layer 3 — Linguistic Distress Indicators (LDI)
+  Layer 3 â€” Linguistic Distress Indicators (LDI)
     Detects structural distress signals that keywords alone miss:
-      - Excessive punctuation density (!!!, ???) — panic writing
-      - ALL-CAPS ratio — agitation/shouting
-      - Sentence fragment ratio — incoherent/rushed writing
+      - Excessive punctuation density (!!!, ???) â€” panic writing
+      - ALL-CAPS ratio â€” agitation/shouting
+      - Sentence fragment ratio â€” incoherent/rushed writing
       - Negation + action verb proximity ("do NOT transfer" vs "DO NOT
-        transfer" — the latter implies someone is being pressured)
+        transfer" â€” the latter implies someone is being pressured)
 
-    Each LDI produces a continuous 0–1 signal, combined into an LDI
+    Each LDI produces a continuous 0â€“1 signal, combined into an LDI
     composite that modifies the final score.
 
   Final Score:
@@ -51,7 +51,7 @@ Design philosophy — three analytical layers:
 
 Return contract (strict):
   {
-    "severity_index": int   (0–100),
+    "severity_index": int   (0â€“100),
     "signal":         str   (machine-readable tag),
     "reason":         str   (plain-English XAI for FCU investigator)
   }
@@ -76,7 +76,7 @@ from typing import Dict, List, Tuple
 SCRIPT_DIR    = os.path.dirname(os.path.abspath(__file__))
 LEXICON_PATH  = os.path.join(SCRIPT_DIR, "baselines", "sentiment_lexicon.json")
 
-# Cluster amplification — applied when hits span N or more categories
+# Cluster amplification â€” applied when hits span N or more categories
 CLUSTER_THRESHOLD     = 2      # Minimum categories that must fire
 CLUSTER_AMPLIFIER     = 1.35   # 35% score boost for multi-category fraud language
 
@@ -92,10 +92,10 @@ MAX_BASE_SCORE        = 85.0
 # ---------------------------------------------------------------------------
 # FRAUD LEXICON
 # ---------------------------------------------------------------------------
-# Structure: category → list of (phrase, weight, idf)
+# Structure: category â†’ list of (phrase, weight, idf)
 #
-# weight : base risk weight for this phrase (0.0–1.0)
-# idf    : inverse document frequency proxy — rarer/more specific phrases
+# weight : base risk weight for this phrase (0.0â€“1.0)
+# idf    : inverse document frequency proxy â€” rarer/more specific phrases
 #          get higher IDF, common words get lower IDF
 #
 # IDF values are calibrated against a corpus of ~50,000 Indian PSB
@@ -228,8 +228,8 @@ DEFAULT_LEXICON = {
 # ---------------------------------------------------------------------------
 # LINGUISTIC DISTRESS INDICATOR THRESHOLDS
 # ---------------------------------------------------------------------------
-LDI_CAPS_THRESHOLD = 0.25  # > 25% characters in CAPS → distress signal
-LDI_PUNCT_THRESHOLD = 0.08  # > 8% characters are !/? → panic writing
+LDI_CAPS_THRESHOLD = 0.25  # > 25% characters in CAPS â†’ distress signal
+LDI_PUNCT_THRESHOLD = 0.08  # > 8% characters are !/? â†’ panic writing
 LDI_FRAG_THRESHOLD = 0.40  # > 40% sentences are fragments (< 5 words)
 
 
@@ -244,16 +244,16 @@ class SentimentWatch:
     Analyses free-text fields (remarks, complaint_text) for linguistic
     markers of financial fraud using a three-layer scoring pipeline:
 
-    Layer 1 — Lexicon TF-IDF Risk Score
-        Each lexicon hit contributes: weight × log(1 + freq) × idf
+    Layer 1 â€” Lexicon TF-IDF Risk Score
+        Each lexicon hit contributes: weight Ã— log(1 + freq) Ã— idf
         Produces a base score in [0, MAX_BASE_SCORE].
 
-    Layer 2 — Semantic Cluster Amplification
-        If hits span ≥ 2 independent fraud categories, the score is
-        amplified by CLUSTER_AMPLIFIER (1.35×). Co-occurring categories
+    Layer 2 â€” Semantic Cluster Amplification
+        If hits span â‰¥ 2 independent fraud categories, the score is
+        amplified by CLUSTER_AMPLIFIER (1.35Ã—). Co-occurring categories
         are a strong linguistic fraud signal.
 
-    Layer 3 — Linguistic Distress Indicators (LDI)
+    Layer 3 â€” Linguistic Distress Indicators (LDI)
         Structural text features (CAPS ratio, punctuation density,
         sentence fragment ratio, negation proximity) contribute an
         additive LDI composite to the final score.
@@ -261,7 +261,7 @@ class SentimentWatch:
     Usage:
         agent = SentimentWatch()
         result = agent.evaluate({"remarks": "Urgent! Manager told me bypass KYC now"})
-        print(result["severity_index"])  # 0–100
+        print(result["severity_index"])  # 0â€“100
     """
 
     def __init__(self, lexicon_path: str = LEXICON_PATH):
@@ -280,7 +280,7 @@ class SentimentWatch:
         self.lexicon: Dict[str, list] = {}
         self._load_lexicon()
 
-        # Build flat O(1) lookup: phrase → (weight, idf, category)
+        # Build flat O(1) lookup: phrase â†’ (weight, idf, category)
         # Avoids nested iteration during each evaluate() call
         self._flat_lookup: Dict[str, Tuple[float, float, str]] = {}
         self._build_flat_lookup()
@@ -310,16 +310,16 @@ class SentimentWatch:
         except (FileNotFoundError, AssertionError, json.JSONDecodeError) as exc:
             warnings.warn(
                 f"[SentimentWatch] Lexicon load failed ({exc}). "
-                "Using default fraud lexicon — agent operational."
+                "Using default fraud lexicon â€” agent operational."
             )
             self.lexicon = DEFAULT_LEXICON
 
     def _build_flat_lookup(self) -> None:
         """
-        Flatten the nested category → [(phrase, weight, idf)] structure
-        into a single dict: phrase → (weight, idf, category).
+        Flatten the nested category â†’ [(phrase, weight, idf)] structure
+        into a single dict: phrase â†’ (weight, idf, category).
 
-        O(1) lookup during evaluate() instead of O(categories × phrases).
+        O(1) lookup during evaluate() instead of O(categories Ã— phrases).
         On phrase collision across categories, the higher-weight entry wins.
         """
         for category, entries in self.lexicon.items():
@@ -357,8 +357,8 @@ class SentimentWatch:
     def _preprocess(text: str) -> Tuple[str, str]:
         """
         Produce two text representations:
-          1. normalised_lower — for lexicon matching (lowercase, stripped)
-          2. original — preserved for structural LDI analysis (case intact)
+          1. normalised_lower â€” for lexicon matching (lowercase, stripped)
+          2. original â€” preserved for structural LDI analysis (case intact)
 
         Args:
             text: Raw input text.
@@ -372,7 +372,7 @@ class SentimentWatch:
         return normalised, original
 
     # -----------------------------------------------------------------------
-    # LAYER 1 — LEXICON TF-IDF SCORING
+    # LAYER 1 â€” LEXICON TF-IDF SCORING
     # -----------------------------------------------------------------------
 
     def _compute_tfidf_score(
@@ -383,10 +383,10 @@ class SentimentWatch:
 
         For each phrase in the flat lookup, check if it appears in the text.
         Contribution formula:
-            score_i = weight_i × log(1 + freq_i) × idf_i
+            score_i = weight_i Ã— log(1 + freq_i) Ã— idf_i
 
         where freq_i = number of times phrase_i appears in the text.
-        log(1 + freq) is the TF (term frequency) dampener — prevents a
+        log(1 + freq) is the TF (term frequency) dampener â€” prevents a
         single repeated word from dominating the score.
 
         Args:
@@ -395,7 +395,7 @@ class SentimentWatch:
         Returns:
             Tuple of:
               - total_score (float, raw TF-IDF sum)
-              - category_hits (dict: category → hit count)
+              - category_hits (dict: category â†’ hit count)
               - matched_phrases (list of matched phrase strings)
         """
         total_score    = 0.0
@@ -403,10 +403,10 @@ class SentimentWatch:
         matched_phrases: List[str]    = []
 
         for phrase, (weight, idf, category) in self._flat_lookup.items():
-            # Count occurrences (TF component) — handles repeated mentions
+            # Count occurrences (TF component) â€” handles repeated mentions
             freq = text_lower.count(phrase)
             if freq > 0:
-                # TF-IDF contribution: weight × log(1 + freq) × idf
+                # TF-IDF contribution: weight Ã— log(1 + freq) Ã— idf
                 contribution = weight * math.log(1 + freq) * idf
                 total_score  += contribution
                 category_hits[category] += freq
@@ -415,7 +415,7 @@ class SentimentWatch:
         return total_score, dict(category_hits), matched_phrases
 
     # -----------------------------------------------------------------------
-    # LAYER 2 — CLUSTER AMPLIFICATION
+    # LAYER 2 â€” CLUSTER AMPLIFICATION
     # -----------------------------------------------------------------------
 
     @staticmethod
@@ -429,7 +429,7 @@ class SentimentWatch:
 
         Linguistic co-occurrence of independent fraud signals (e.g., THREAT
         + URGENCY simultaneously) is a much stronger indicator than either
-        alone — modelling the psychological pattern of high-pressure fraud.
+        alone â€” modelling the psychological pattern of high-pressure fraud.
 
         Args:
             base_score:    Raw TF-IDF score.
@@ -444,7 +444,7 @@ class SentimentWatch:
         return min(MAX_BASE_SCORE, base_score), False
 
     # -----------------------------------------------------------------------
-    # LAYER 3 — LINGUISTIC DISTRESS INDICATORS
+    # LAYER 3 â€” LINGUISTIC DISTRESS INDICATORS
     # -----------------------------------------------------------------------
 
     @staticmethod
@@ -472,7 +472,7 @@ class SentimentWatch:
 
         4. Negation + imperative proximity
            Detects patterns like "DO NOT ask", "never tell", "don't
-           verify" within a 5-word window — pressure language that
+           verify" within a 5-word window â€” pressure language that
            instructs someone to bypass normal procedure.
 
         Each signal is scaled to [0, 1] and multiplied by its weight.
@@ -483,7 +483,7 @@ class SentimentWatch:
             text_original: Original case-preserved text.
 
         Returns:
-            Tuple of (ldi_composite 0–15, sub_signal_dict for XAI)
+            Tuple of (ldi_composite 0â€“15, sub_signal_dict for XAI)
         """
         ldi_signals = {}
 
@@ -494,7 +494,7 @@ class SentimentWatch:
         text  = text_original
         total = len(text)
 
-        # ── Sub-signal 1: CAPS ratio ──────────────────────────────────────
+        # â”€â”€ Sub-signal 1: CAPS ratio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         alpha_chars = [c for c in text if c.isalpha()]
         if alpha_chars:
             cap_ratio = sum(1 for c in alpha_chars if c.isupper()) / len(alpha_chars)
@@ -507,7 +507,7 @@ class SentimentWatch:
             caps_signal = 0.0
         ldi_signals["caps_ratio"] = round(cap_ratio, 3)
 
-        # ── Sub-signal 2: Punctuation density ────────────────────────────
+        # â”€â”€ Sub-signal 2: Punctuation density â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         punct_count   = text.count('!') + text.count('?')
         punct_density = punct_count / total if total > 0 else 0.0
         punct_signal  = min(1.0, max(0.0,
@@ -515,7 +515,7 @@ class SentimentWatch:
         )) if punct_density > LDI_PUNCT_THRESHOLD else 0.0
         ldi_signals["punct_density"] = round(punct_density, 3)
 
-        # ── Sub-signal 3: Sentence fragment ratio ─────────────────────────
+        # â”€â”€ Sub-signal 3: Sentence fragment ratio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         # Split on sentence-ending punctuation
         sentences = re.split(r'[.!?]+', text)
         sentences = [s.strip() for s in sentences if s.strip()]
@@ -530,7 +530,7 @@ class SentimentWatch:
             frag_signal = 0.0
         ldi_signals["fragment_ratio"] = round(frag_ratio, 3)
 
-        # ── Sub-signal 4: Negation + imperative proximity ─────────────────
+        # â”€â”€ Sub-signal 4: Negation + imperative proximity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         # Patterns: "do not X", "don't X", "never X", "no X" where X is
         # a procedural verb (verify, check, ask, report, tell, document)
         NEGATION_PATTERN = re.compile(
@@ -543,14 +543,14 @@ class SentimentWatch:
         negation_signal = min(1.0, negation_hits * 0.4)
         ldi_signals["negation_imperative_hits"] = negation_hits
 
-        # ── LDI Composite ─────────────────────────────────────────────────
+        # â”€â”€ LDI Composite â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         ldi_raw = (
             LDI_WEIGHT_CAPS    * caps_signal    +
             LDI_WEIGHT_PUNCT   * punct_signal   +
-            LDI_WEIGHT_FRAGMENT* frag_signal    +
-            LDI_WEIGHT_NEGATION* negation_signal
+            LDI_WEIGHT_FRAGMENT * frag_signal    +
+            LDI_WEIGHT_NEGATION * negation_signal
         )
-        # Scale to [0, 15] — LDI is a modifier, max additive contribution = 15
+        # Scale to [0, 15] â€” LDI is a modifier, max additive contribution = 15
         ldi_composite = ldi_raw * (15.0 / (
             LDI_WEIGHT_CAPS + LDI_WEIGHT_PUNCT +
             LDI_WEIGHT_FRAGMENT + LDI_WEIGHT_NEGATION
@@ -663,7 +663,7 @@ class SentimentWatch:
         if was_amplified:
             parts.append(
                 f"Multi-category co-occurrence detected "
-                f"({len(category_hits)} categories) — "
+                f"({len(category_hits)} categories) â€” "
                 f"cluster amplification applied (+35% score boost)."
             )
 
@@ -671,20 +671,20 @@ class SentimentWatch:
         ldi_details = []
         if ldi_signals.get("caps_ratio", 0) > LDI_CAPS_THRESHOLD:
             ldi_details.append(
-                f"CAPS ratio {ldi_signals['caps_ratio']:.0%} — agitation indicator"
+                f"CAPS ratio {ldi_signals['caps_ratio']:.0%} â€” agitation indicator"
             )
         if ldi_signals.get("punct_density", 0) > LDI_PUNCT_THRESHOLD:
             ldi_details.append(
-                f"punctuation density {ldi_signals['punct_density']:.0%} — panic writing"
+                f"punctuation density {ldi_signals['punct_density']:.0%} â€” panic writing"
             )
         if ldi_signals.get("fragment_ratio", 0) > LDI_FRAG_THRESHOLD:
             ldi_details.append(
-                f"sentence fragment ratio {ldi_signals['fragment_ratio']:.0%} — rushed/incoherent"
+                f"sentence fragment ratio {ldi_signals['fragment_ratio']:.0%} â€” rushed/incoherent"
             )
         if ldi_signals.get("negation_imperative_hits", 0) > 0:
             ldi_details.append(
                 f"{ldi_signals['negation_imperative_hits']} negation+procedure bypass "
-                "pattern(s) — pressure language"
+                "pattern(s) â€” pressure language"
             )
         if ldi_details:
             parts.append(
@@ -701,7 +701,7 @@ class SentimentWatch:
             "WATCH"    if severity >= 40 else
             "MONITOR"
         )
-        return f"[{severity_label}] NLP Severity {severity}/100 — " + " | ".join(parts)
+        return f"[{severity_label}] NLP Severity {severity}/100 â€” " + " | ".join(parts)
 
     # -----------------------------------------------------------------------
     # MAIN EVALUATE METHOD
@@ -712,16 +712,16 @@ class SentimentWatch:
         Evaluate a transaction's text fields for NLP fraud signals.
 
         Text extraction priority:
-          1. 'remarks'        — primary transaction annotation field
-          2. 'complaint_text' — customer/whistle-blower complaint field
-          3. 'notes'          — secondary annotation
+          1. 'remarks'        â€” primary transaction annotation field
+          2. 'complaint_text' â€” customer/whistle-blower complaint field
+          3. 'notes'          â€” secondary annotation
           4. Concatenates all three if multiple fields are present.
 
         Scoring pipeline:
-          Layer 1: Lexicon TF-IDF score  → base_score (0–MAX_BASE_SCORE)
-          Layer 2: Cluster amplification → amplified_score
-          Layer 3: LDI composite         → +0 to +15 modifier
-          Final:   clip(amplified + LDI, 0, 100) → severity_index
+          Layer 1: Lexicon TF-IDF score  â†’ base_score (0â€“MAX_BASE_SCORE)
+          Layer 2: Cluster amplification â†’ amplified_score
+          Layer 3: LDI composite         â†’ +0 to +15 modifier
+          Final:   clip(amplified + LDI, 0, 100) â†’ severity_index
 
         Args:
             transaction (dict): Must contain at least one of:
@@ -734,12 +734,12 @@ class SentimentWatch:
 
         Returns:
             dict: {
-                "severity_index": int (0–100),
+                "severity_index": int (0â€“100),
                 "signal":         str,
                 "reason":         str
             }
         """
-        # ── 0. Input validation ───────────────────────────────────────────
+        # â”€â”€ 0. Input validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if not isinstance(transaction, dict):
             return {
                 "severity_index": 0,
@@ -747,7 +747,7 @@ class SentimentWatch:
                 "reason":         "Transaction payload must be a dictionary."
             }
 
-        # ── 1. Text extraction — concatenate all available text fields ────
+        # â”€â”€ 1. Text extraction â€” concatenate all available text fields â”€â”€â”€â”€
         raw_parts = []
         for field in ("remarks", "complaint_text", "notes"):
             val = transaction.get(field, "")
@@ -763,25 +763,25 @@ class SentimentWatch:
 
         raw_text = " ".join(raw_parts)
 
-        # ── 2. Preprocessing ──────────────────────────────────────────────
+        # â”€â”€ 2. Preprocessing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         text_lower, text_original = self._preprocess(raw_text)
 
-        # ── 3. Layer 1 — TF-IDF Lexicon Score ────────────────────────────
+        # â”€â”€ 3. Layer 1 â€” TF-IDF Lexicon Score â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         base_score, category_hits, matched_phrases = \
             self._compute_tfidf_score(text_lower)
 
-        # ── 4. Layer 2 — Cluster Amplification ───────────────────────────
+        # â”€â”€ 4. Layer 2 â€” Cluster Amplification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         amplified_score, was_amplified = \
             self._apply_cluster_amplification(base_score, category_hits)
 
-        # ── 5. Layer 3 — Linguistic Distress Indicators ───────────────────
+        # â”€â”€ 5. Layer 3 â€” Linguistic Distress Indicators â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         ldi_composite, ldi_signals = self._compute_ldi(text_original)
 
-        # ── 6. Final severity index ───────────────────────────────────────
+        # â”€â”€ 6. Final severity index â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         raw_severity  = amplified_score + ldi_composite
         severity_index = int(min(100, max(0, round(raw_severity))))
 
-        # ── 7. Signal and reason ──────────────────────────────────────────
+        # â”€â”€ 7. Signal and reason â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         negation_hits = ldi_signals.get("negation_imperative_hits", 0)
         signal = self._resolve_signal(
             severity_index, category_hits, was_amplified, negation_hits
@@ -807,51 +807,51 @@ if __name__ == "__main__":
     DIVIDER = "=" * 72
 
     print(DIVIDER)
-    print("  VaultMind 2.0 — Agent 4: SentimentWatch")
-    print("  NLP Fraud Signal Extractor — TF-IDF + Cluster + LDI")
+    print("  VaultMind 2.0 â€” Agent 4: SentimentWatch")
+    print("  NLP Fraud Signal Extractor â€” TF-IDF + Cluster + LDI")
     print(DIVIDER)
 
     agent = SentimentWatch()
 
     TEST_TRANSACTIONS = [
         {
-            "_label": "Case 1 — Completely normal transaction remark",
+            "_label": "Case 1 â€” Completely normal transaction remark",
             "remarks": "Routine NEFT transfer for vendor invoice payment. All documents verified."
         },
         {
-            "_label": "Case 2 — Single urgency keyword, low score expected",
+            "_label": "Case 2 â€” Single urgency keyword, low score expected",
             "remarks": "Please process this urgent salary disbursement before EOD."
         },
         {
-            "_label": "Case 3 — Bribery + urgency cluster (multi-category fire)",
-            "remarks": "Manager said to pay ghoos to the officer. Urgent — do not ask questions. Process now."
+            "_label": "Case 3 â€” Bribery + urgency cluster (multi-category fire)",
+            "remarks": "Manager said to pay ghoos to the officer. Urgent â€” do not ask questions. Process now."
         },
         {
-            "_label": "Case 4 — Threat and coercion language",
+            "_label": "Case 4 â€” Threat and coercion language",
             "remarks": "The client threatened to report me if I don't transfer immediately. I am scared. No choice."
         },
         {
-            "_label": "Case 5 — Financial crime terminology (PMLA / hawala)",
+            "_label": "Case 5 â€” Financial crime terminology (PMLA / hawala)",
             "remarks": "Round tripping confirmed. Benami account used for hawala. Avoid detection by splitting."
         },
         {
-            "_label": "Case 6 — Social engineering + bypass instruction",
+            "_label": "Case 6 â€” Social engineering + bypass instruction",
             "remarks": "CEO approved this verbally. Keep this quiet. No documentation needed. Just between us."
         },
         {
-            "_label": "Case 7 — LDI trigger: CAPS + panic punctuation",
+            "_label": "Case 7 â€” LDI trigger: CAPS + panic punctuation",
             "remarks": "DO NOT VERIFY THIS!!! PROCESS IMMEDIATELY!!! NO TIME LEFT!!! MANAGER SAID SO!!!"
         },
         {
-            "_label": "Case 8 — Negation + procedure bypass (LDI negation layer)",
+            "_label": "Case 8 â€” Negation + procedure bypass (LDI negation layer)",
             "remarks": "Please do not verify this transaction. Don't ask questions. Never record this. Don't file the report."
         },
         {
-            "_label": "Case 9 — Complaint text field (whistle-blower)",
+            "_label": "Case 9 â€” Complaint text field (whistle-blower)",
             "complaint_text": "I was forced to approve a circular transfer. The manager coerced me under threat. Benami accounts were used. I am afraid to report."
         },
         {
-            "_label": "Case 10 — MAX SCORE: all dimensions fire simultaneously",
+            "_label": "Case 10 â€” MAX SCORE: all dimensions fire simultaneously",
             "remarks": "Ghoos given to manager. Forced to launder money via hawala. DO NOT VERIFY!!! "
                        "Don't report. Bypass approval now. Secret transaction for shell account. "
                        "Threatened if I refuse. Please help. Desperate. No choice!!!",
@@ -863,7 +863,7 @@ if __name__ == "__main__":
         result = agent.evaluate(tx)
 
         bar_len = result["severity_index"] // 5
-        bar     = "█" * bar_len + "░" * (20 - bar_len)
+        bar     = "â–ˆ" * bar_len + "â–‘" * (20 - bar_len)
 
         print(f"\n{label}")
         print(f"  SI     : [{bar}] {result['severity_index']:3d}/100")
@@ -873,3 +873,4 @@ if __name__ == "__main__":
     print(f"\n{DIVIDER}")
     print("  All test cases complete. Agent 4 operational.")
     print(DIVIDER)
+

@@ -104,8 +104,6 @@ class PreTransactionGateway:
         Validates active GST status before RTGS/NEFT commercial loan disbursement release.
         """
         gstin_clean = str(vendor_gstin).strip().upper()
-        pan_clean = str(vendor_pan).strip().upper()
-
         if gstin_clean in self.gstn_registry:
             record = self.gstn_registry[gstin_clean]
             if record["status"] != "ACTIVE":

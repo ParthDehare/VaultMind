@@ -1,4 +1,4 @@
-﻿# vaultmind_main.py
+# vaultmind_main.py
 import sys
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -223,7 +223,6 @@ def download_evidence(emp_id: str, current_user: TokenData = Depends(get_current
 @app.post("/api/evidence/file-str")
 def file_str(payload: dict, current_user: TokenData = Depends(require_role("auditor"))):
     emp_id = payload.get("emp_id")
-    cbsi_score = payload.get("cbsi_score")
     return {
         "status": "success",
         "message": f"STR successfully filed securely to FIU-IND for node {emp_id}"

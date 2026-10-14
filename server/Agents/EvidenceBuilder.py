@@ -1,4 +1,4 @@
-﻿import os, hashlib, json, io, random
+import os, hashlib, json, io, random
 from datetime import datetime
 import qrcode
 from PIL import Image

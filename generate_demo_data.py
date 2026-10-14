@@ -71,11 +71,10 @@ def make_normal(employees, seq_num):
         "complaint_text": "",
         "remarks": "",
         "employee_cibil_score": random.randint(750, 900),
+        "source_ip": f"10.{random.randint(1,20)}.{random.randint(1,254)}.{random.randint(1,254)}",
+        "source_account": f"ACC_{random.randint(1000,9999)}",
         "is_fraud_flag": 0,
     }
-    base["source_ip"] = base["ip_address"]
-    base["source_account"] = base["account_touched"]
-    return base
 
 # ── FRAUD SCENARIOS (rotating through 8 types) ──
 BRIBE_TEXTS = [

@@ -1,4 +1,4 @@
-﻿# VaultMind 2.0 - Agents Initialization
+# VaultMind 2.0 - Agents Initialization
 # Automatically exposes all 8 agents according to the official Architecture Doc
 
 from .BehaviourWatch import BehaviourWatch     # A1: LSTM + Isolation Forest
