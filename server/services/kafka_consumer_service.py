@@ -1,4 +1,4 @@
-﻿# server/services/kafka_consumer_service.py
+# server/services/kafka_consumer_service.py
 """
 VaultMind Decoupled Kafka Consumer Worker & DLQ Service
 Can be run as an independent microservice (`python -m services.kafka_consumer_service`)
