@@ -6,7 +6,7 @@ from core.secrets_config import secrets
 
 def _send_email_sync(msg, smtp_server, smtp_port, smtp_user, smtp_password):
     with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.set_debuglevel(1)
+        server.set_debuglevel(0)
         server.ehlo()
         server.starttls()
         server.ehlo()

@@ -80,3 +80,6 @@ Thumbs.db
 # server/models/*.pt
 # server/models/*.pth
 # server/models/*.bak
+# Ignore Evidence PDFs and Logs
+server/evidence_output/pdf_reports/*.pdf
+server/evidence_output/*.jsonl

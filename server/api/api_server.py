@@ -140,15 +140,20 @@ def generate_explanation(emp_id: str, payload: Optional[ExplainRequest] = None, 
 # ENDPOINT NEW: Download Actual Evidence PDF
 # ---------------------------------------------------------
 @router.get("/evidence/download")
-def download_evidence(emp_id: Optional[str] = None, filename: Optional[str] = None, current_user: TokenData = Depends(get_current_user)):
+def download_evidence(emp_id: Optional[str] = None, filename: Optional[str] = None, current_user: TokenData = Depends(require_role("auditor", "analyst", "admin", "manager"))):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     reports_dir = os.path.join(base_dir, "evidence_output", "pdf_reports")
+    reports_dir_real = os.path.realpath(reports_dir)
     
     target_file = None
     if filename:
         # Remove any path prefixes from the frontend filename string
-        clean_name = filename.split("\\")[-1].split("/")[-1]
-        target_file = os.path.join(reports_dir, clean_name)
+        clean_name = os.path.basename(filename)
+        target_file = os.path.realpath(os.path.join(reports_dir, clean_name))
+        # Path traversal protection: ensure resolved path stays inside reports_dir
+        if not target_file.startswith(reports_dir_real):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=403, detail="Access denied: invalid file path.")
         if target_file and os.path.exists(target_file):
             return FileResponse(
                 path=target_file,
@@ -278,7 +283,7 @@ async def get_dashboard_init(current_user: TokenData = Depends(get_current_user)
 # ENDPOINT 5: Human-in-the-Loop Feedback
 # ---------------------------------------------------------
 @router.get("/profile/{emp_id}/history")
-def get_historical_volume(emp_id: str, current_user: TokenData = Depends(get_current_user)):
+def get_historical_volume(emp_id: str, current_user: TokenData = Depends(require_role("auditor", "analyst", "admin", "manager"))):
     avg = historical_state.get_7_day_average(emp_id)
     return {"emp_id": emp_id, "seven_day_average": avg}
 

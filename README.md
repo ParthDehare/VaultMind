@@ -42,6 +42,8 @@
 **VaultMind** is an enterprise-grade, event-driven platform that detects insider threats, money laundering patterns, and fraudulent banking transactions in real time. It combines an **8-agent ensemble ML pipeline** (XGBoost behavioral analysis + PyTorch GraphSAGE network inference + deterministic regulatory rule engines) with an **active deception defense layer** (honeypot traps) and a **human-in-the-loop active learning feedback system**.
 > **Builder's Note:** I led the core system architecture, ML pipeline, and backend engineering for this proof-of-concept, which was built collaboratively with my team and awarded Top 10 nationally at the Union Bank of India IDEA 2.0 Hackathon.
 
+Builder's Note: VaultMind is my V1 architectural proof-of-concept for high-scale, event-driven fraud infrastructure. It was recently awarded Top 10 nationally at the Union Bank of India IDEA 2.0 Hackathon.
+
 ### What Makes VaultMind Different
 
 - **8-Agent Parallel Ensemble** — Transactions are scored by 8 specialized agents in parallel, producing a weighted Composite Behavioural and Structural Integrity (CBSI) score

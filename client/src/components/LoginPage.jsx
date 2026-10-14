@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Loader2, Shield, Lock, User, Mail, Key, Sun, Moon, AlertCircle, CheckCircle } from 'lucide-react';
-import ubiLogo from '../assets/ubi_logo.png';
+
 import { fetchWithAuth } from '../apiService';
 import { authStore } from '../authStore';
 import { useAppStore } from '../store';
@@ -197,9 +197,7 @@ export default function LoginPage({ onLogin }) {
       >
         {/* Portal Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex p-2 rounded-xl mb-4" style={{ background: theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(99,102,241,0.06)' }}>
-            <img src={ubiLogo} alt="Union Bank of India" className="h-10 object-contain px-2" />
-          </div>
+
           <h2 className="text-2xl font-bold tracking-[3px] uppercase" style={{ color: t.text }}>VaultMind</h2>
           <p className="text-[10px] tracking-[2.5px] uppercase font-bold" style={{ color: t.text2 }}>Fraud Intelligence Portal 2.0</p>
         </div>
