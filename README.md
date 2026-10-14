@@ -1,4 +1,4 @@
-# VaultMind Enterprise
+# VaultMind 
 
 > **Real-Time Insider Threat Detection, Inductive Graph Forensics & Active Deception Defense Platform**
 >
@@ -41,6 +41,8 @@
 
 **VaultMind** is an enterprise-grade, event-driven platform that detects insider threats, money laundering patterns, and fraudulent banking transactions in real time. It combines an **8-agent ensemble ML pipeline** (XGBoost behavioral analysis + PyTorch GraphSAGE network inference + deterministic regulatory rule engines) with an **active deception defense layer** (honeypot traps) and a **human-in-the-loop active learning feedback system**.
 
+Builder's Note: VaultMind is my architectural proof-of-concept for high-scale, event-driven fraud infrastructure. It was recently awarded Top 10 nationally at the Union Bank of India IDEA 2.0 Hackathon.
+
 ### What Makes VaultMind Different
 
 - **8-Agent Parallel Ensemble** — Transactions are scored by 8 specialized agents in parallel, producing a weighted Composite Behavioural and Structural Integrity (CBSI) score
@@ -50,6 +52,7 @@
 - **Human-in-the-Loop Learning** — Analyst CONFIRM / FALSE_ALARM feedback is queued for model retraining, enabling continuous self-improvement
 - **Multi-Tenant Row-Level Security** — Every database query is tenant-isolated via PostgreSQL RLS policies enforced through x-tenant-id headers
 - **Real-Time Streaming** — Apache Kafka ingestion to Redis Pub/Sub broadcasting to WebSocket delivery to all connected clients in under 2 seconds
+- **Ultra-Low Latency Pipeline** — Benchmarked at 5.9ms median / 7.83ms P95 latency over 100 concurrent requests via FastAPI and Kafka, ensuring transactions are scored before they settle.
 
 ---
 
