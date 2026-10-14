@@ -33,6 +33,9 @@ server/venv/
 # Environment Variables
 .env
 .env.local
+# Allow the example template to be committed (used by CI for docker compose validation)
+!.env.example
+!server/.env.example
 
 # Jupyter Notebook
 .ipynb_checkpoints

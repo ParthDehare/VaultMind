@@ -45,6 +45,7 @@ jobs:
       - name: Validate Docker Compose
         run: |
           if [ -f docker-compose.yml ]; then
+            cp server/.env.example server/.env
             docker compose config > /dev/null
             echo "docker-compose.yml is valid."
           else
