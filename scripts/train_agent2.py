@@ -122,7 +122,7 @@ def build_node_features(df, account_mapping, num_nodes):
     for _, row in df.iterrows():
         src_id = account_mapping.get(str(row.get("account_touched", "")), None)
         dst_id = account_mapping.get(str(row.get("destination_account", "")), None)
-        fraud  = row.get("is_fraud_flag", 0)
+        fraud = row.get("is_fraud_flag", 0)
 
         if src_id is not None:
             feat[src_id, 0] += 1          # out_degree
@@ -154,7 +154,7 @@ def main():
     print("=" * 65)
 
     if not os.path.exists(PRODUCTION_CSV):
-        print(f"\n[X] ERROR: Cannot find production data at:")
+        print("\n[X] ERROR: Cannot find production data at:")
         print(f"    {PRODUCTION_CSV}")
         sys.exit(1)
 
@@ -163,7 +163,7 @@ def main():
     # ------------------------------------------------------------------
     print(f"\n[1/6] Loading PRODUCTION data: {PRODUCTION_CSV}")
     df = pd.read_csv(PRODUCTION_CSV)
-    df['amount']             = df['amount'].fillna(0.0)
+    df["amount"] = df["amount"].fillna(0.0)
     df['dwell_time_seconds'] = df['dwell_time_seconds'].fillna(0.0)
     print(f"  [OK] {len(df):,} transactions loaded")
 

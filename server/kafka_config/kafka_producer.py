@@ -22,15 +22,16 @@ for attempt in range(5):
         print("[OK] Kafka Producer Connected Successfully!")
         break
     except Exception as e:
-        print(f"[ERROR] Kafka Connection Failed (Attempt {attempt+1}/5): {e}")
+        print(f"[ERROR] Kafka Connection Failed (Attempt {attempt + 1}/5): {e}")
         time.sleep(2)
 
 if not producer:
     print("[WARNING] Could not connect to Kafka. Producer running in dummy mode.")
 
-TOPIC_NAME = 'live-transactions'
+TOPIC_NAME = "live-transactions"
 BASE_DIR = Path(__file__).resolve().parent.parent
 CSV_FILE = str(BASE_DIR / "data" / "Testing_data" / "live_demo_stream.csv")
+
 
 def stream_data():
     print(f"[INFO] Starting Live Stream from {CSV_FILE} to Kafka Topic: {TOPIC_NAME}...")

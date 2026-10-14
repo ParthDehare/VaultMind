@@ -228,9 +228,9 @@ DEFAULT_LEXICON = {
 # ---------------------------------------------------------------------------
 # LINGUISTIC DISTRESS INDICATOR THRESHOLDS
 # ---------------------------------------------------------------------------
-LDI_CAPS_THRESHOLD   = 0.25   # > 25% characters in CAPS → distress signal
-LDI_PUNCT_THRESHOLD  = 0.08   # > 8% characters are !/? → panic writing
-LDI_FRAG_THRESHOLD   = 0.40   # > 40% sentences are fragments (< 5 words)
+LDI_CAPS_THRESHOLD = 0.25  # > 25% characters in CAPS → distress signal
+LDI_PUNCT_THRESHOLD = 0.08  # > 8% characters are !/? → panic writing
+LDI_FRAG_THRESHOLD = 0.40  # > 40% sentences are fragments (< 5 words)
 
 
 # ===========================================================================

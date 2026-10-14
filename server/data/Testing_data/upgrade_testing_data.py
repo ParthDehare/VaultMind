@@ -83,5 +83,6 @@ def upgrade_data():
         df.to_csv(file_path, index=False)
         print(f"Successfully updated {len(df)} rows in {name}.")
 
+
 if __name__ == "__main__":
     upgrade_data()

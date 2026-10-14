@@ -745,7 +745,7 @@ class NetworkIntel:
                     "reason":         reason
                 }
         except Exception as e:
-            print(f"[NetworkIntel] ML Model Error: {e}") # Fall through to rules
+            print(f"[NetworkIntel] ML Model Error: {e}")  # Fall through to rules
 
         # ── 2. Dimension A — Privilege Escalation Score (O(1) lookups) ───
         pes_score, raw_weight = self._compute_pes(emp_class, system_action)
@@ -766,9 +766,9 @@ class NetworkIntel:
         # TPS (0.20) — temporal context amplifies but doesn't dominate alone.
         #
         psi_raw = (
-            WEIGHT_PES * pes_score +
-            WEIGHT_VAS * vas_score +
-            WEIGHT_TPS * tps_score
+            WEIGHT_PES * pes_score
+            + WEIGHT_VAS * vas_score
+            + WEIGHT_TPS * tps_score
         )
         psi = int(min(100, max(0, round(psi_raw))))
 
@@ -787,8 +787,8 @@ class NetworkIntel:
 
         return {
             "severity_index": psi,
-            "signal":         signal,
-            "reason":         reason
+            "signal": signal,
+            "reason": reason
         }
 
 

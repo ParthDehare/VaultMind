@@ -265,8 +265,10 @@ def file_str(payload: STRRequest, current_user: TokenData = Depends(require_role
 def _risk_tier_from_cbsi(cbsi: int) -> str:
     if cbsi >= 70: return "CRITICAL"
     if cbsi >= 50: return "HIGH"
-    if cbsi >= 30: return "WATCH"
+    if cbsi >= 30:
+        return "WATCH"
     return "NORMAL"
+
 
 @router.get("/dashboard-init")
 async def get_dashboard_init(current_user: TokenData = Depends(get_current_user)):
@@ -276,12 +278,14 @@ async def get_dashboard_init(current_user: TokenData = Depends(get_current_user)
     """
     try:
         return MasterOrchestrator.recent_transactions
-    except Exception as e:
+    except Exception:
         return []
+
 
 # ---------------------------------------------------------
 # ENDPOINT 5: Human-in-the-Loop Feedback
 # ---------------------------------------------------------
+
 @router.get("/profile/{emp_id}/history")
 def get_historical_volume(emp_id: str, current_user: TokenData = Depends(require_role("auditor", "analyst", "admin", "manager"))):
     avg = historical_state.get_7_day_average(emp_id)
