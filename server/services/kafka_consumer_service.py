@@ -146,8 +146,13 @@ class KafkaConsumerWorker:
                     self._publish_to_dlq(raw_val, f"JSON Parse Error: {parse_err}", msg.topic(), msg.partition(), msg.offset())
                     continue
 
-                # Run non-blocking scoring coroutine
-                loop.run_until_complete(self._process_with_retries(tx, raw_val, msg.topic(), msg.partition(), msg.offset()))
+                # Run non-blocking scoring coroutine safely across threads
+                coro = self._process_with_retries(tx, raw_val, msg.topic(), msg.partition(), msg.offset())
+                if loop.is_running():
+                    future = asyncio.run_coroutine_threadsafe(coro, loop)
+                    future.result()
+                else:
+                    loop.run_until_complete(coro)
 
         except KeyboardInterrupt:
             logger.info("[KafkaWorker] Interrupted by user.")
