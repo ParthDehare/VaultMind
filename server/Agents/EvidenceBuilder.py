@@ -1,4 +1,4 @@
-import os, hashlib, json, io, random
+﻿import os, hashlib, json, io, random
 from datetime import datetime
 import qrcode
 from PIL import Image
@@ -16,7 +16,7 @@ from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_JUSTIFY
 from reportlab.pdfgen import canvas as pdfcanvas
 from reportlab.lib.utils import ImageReader
 
-# ── Config & Constants ─────────────────────────────────────
+# â”€â”€ Config & Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 BANK_CONFIG = {
     "bank_name":        "Union Bank of India",
     "bank_short":       "UBI",
@@ -24,8 +24,8 @@ BANK_CONFIG = {
     "rbi_circular":     "RBI/2024-25/16",
     "rbi_full":         "Master Direction on Fraud Risk Management, 2024",
     "fiu_ref":          "FIU-IND/STR/2026/VM",
-    "pmla":             "Prevention of Money Laundering Act, 2002 — Section 12",
-    "bsa":              "Bharatiya Sakshya Adhiniyam 2023 — Section 63",
+    "pmla":             "Prevention of Money Laundering Act, 2002 â€” Section 12",
+    "bsa":              "Bharatiya Sakshya Adhiniyam 2023 â€” Section 63",
     "system":           "VaultMind 2.0 Behavioural Intelligence Platform",
     "version":          "v2.4.1-PROD",
     "swift_prefix":     "UBININBB",
@@ -45,9 +45,9 @@ C_GREEN  = HexColor("#145A32")
 C_WHITE  = white
 C_LGREY  = HexColor("#E8ECF0")
 
-# ── Watermark Canvas ───────────────────────────────────────
+# â”€â”€ Watermark Canvas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class WatermarkCanvas(pdfcanvas.Canvas):
-    def __init__(self, *args, watermark_text="CONFIDENTIAL — INTERNAL AUDIT ONLY", **kwargs):
+    def __init__(self, *args, watermark_text="CONFIDENTIAL â€” INTERNAL AUDIT ONLY", **kwargs):
         super().__init__(*args, **kwargs)
         self._watermark_text = watermark_text
 
@@ -70,7 +70,7 @@ class WatermarkCanvas(pdfcanvas.Canvas):
         self.drawCentredString(0, -30, self._watermark_text)
         self.restoreState()
 
-# ── Helpers ────────────────────────────────────────────────
+# â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 def S(name, **kw):
     return ParagraphStyle(name, **kw)
 
@@ -92,24 +92,24 @@ def mock_device_ip(branch_id: str) -> str:
     except: b_int = 1
     return f"10.{b_int}.{random.randint(1,254)}.{random.randint(1,254)}"
 
-# ── Agent 7 Main Class ─────────────────────────────────────
+# â”€â”€ Agent 7 Main Class â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class EvidenceBuilder:
     def __init__(self):
         self.agent_name = "EvidenceBuilder (Agent 7)"
         self.output_dir = 'evidence_output/pdf_reports'
         self.chain_dir = 'evidence_output/blockchain_chain'
         self.str_dir = 'evidence_output/str_reports'
-        
+
         SUPABASE_URL = secrets.get("SUPABASE_URL", "")
         SUPABASE_KEY = secrets.get("SUPABASE_KEY", "")
         if SUPABASE_URL and SUPABASE_KEY:
             self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         else:
             self.supabase = None
-        
+
         for d in [self.output_dir, self.chain_dir, self.str_dir]:
             os.makedirs(d, exist_ok=True)
-            
+
         self.chain_file = os.path.join(self.chain_dir, "evidence_chain.json")
         self.chain = self._load_chain()
 
@@ -139,7 +139,7 @@ class EvidenceBuilder:
         """
         import re
         raw_reason = str(dominant_reason or "")
-        
+
         # 1. Extract Section 3: AI Risk Context
         ctx_parts = re.split(r'\bContext:\s*', raw_reason, maxsplit=1, flags=re.IGNORECASE)
         main_body = ctx_parts[0].strip()
@@ -174,7 +174,7 @@ class EvidenceBuilder:
 
         if output_type == "reportlab":
             flowables = []
-            
+
             # [Section 1: Executive Summary]
             sec1_html = (
                 f"<b>OFFENSE NARRATIVE:</b><br/>"
@@ -182,7 +182,7 @@ class EvidenceBuilder:
                 f"<b>Primary AI Detection Reason:</b> {header_reason}"
             )
             flowables.append(Paragraph(sec1_html, S("on_sec1", fontSize=8.5, fontName="Helvetica", textColor=C_DARK, leading=12)))
-            
+
             # [Section 2: Regulatory Breaches]
             if breached_rules:
                 flowables.append(Spacer(1, 6))
@@ -190,13 +190,13 @@ class EvidenceBuilder:
                 for rule in breached_rules:
                     rule_html = f"&bull; <b>{rule.split(']')[0] + ']' if ']' in rule else ''}</b> {rule.split(']', 1)[-1].strip() if ']' in rule else rule}"
                     flowables.append(Paragraph(rule_html, S("on_sec2_b", fontSize=8, fontName="Helvetica", textColor=C_DARK, leading=11, leftIndent=12)))
-            
+
             # [Section 3: AI Risk Context]
             if context_text:
                 flowables.append(Spacer(1, 6))
                 sec3_html = f"<b>AI RISK CONTEXT:</b><br/><i>{context_text}</i>"
                 flowables.append(Paragraph(sec3_html, S("on_sec3", fontSize=8, fontName="Helvetica", textColor=C_DARK, leading=11)))
-                
+
             return flowables
 
         elif output_type == "html":
@@ -228,11 +228,11 @@ class EvidenceBuilder:
         # 1. Update Blockchain
         canonical = json.dumps(transaction, sort_keys=True, default=str)
         data_hash = hashlib.sha256(canonical.encode()).hexdigest()
-        
+
         prev = self.chain[-1]
         content = f"{len(self.chain)}{datetime.now().isoformat()}{alert_id}{data_hash}{prev['block_hash']}"
         block_hash = hashlib.sha256(content.encode()).hexdigest()
-        
+
         block = {
             "block_id": len(self.chain),
             "timestamp": datetime.now().isoformat(),
@@ -254,7 +254,7 @@ class EvidenceBuilder:
         story = []
 
         cbsi_col = C_RED if cbsi_score >= 80 else (HexColor("#7A4A00") if cbsi_score >= 60 else C_GREEN)
-        
+
         # QR Code
         qr_obj = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=4, border=2)
         qr_obj.add_data(block_hash)
@@ -288,7 +288,7 @@ class EvidenceBuilder:
         story.append(Spacer(1, 4))
 
         story.append(_table([[
-            Paragraph(f"<b>RESTRICTED — CLASSIFICATION: CONFIDENTIAL | REF: {alert_id}</b>",
+            Paragraph(f"<b>RESTRICTED â€” CLASSIFICATION: CONFIDENTIAL | REF: {alert_id}</b>",
                 S("cl", fontSize=8, textColor=C_WHITE, fontName="Helvetica-Bold", alignment=TA_CENTER))
         ]], [W], [("BACKGROUND", (0,0),(-1,-1), C_RED), ("TOPPADDING", (0,0),(-1,-1), 5), ("BOTTOMPADDING", (0,0),(-1,-1), 5)]))
         story.append(Spacer(1, 8))
@@ -331,7 +331,7 @@ class EvidenceBuilder:
                 ("BOTTOMPADDING", (0,0),(-1,-1), 7), ("LEFTPADDING", (0,0),(-1,-1), 10), ("VALIGN", (0,0),(-1,-1), "MIDDLE")
             ])
 
-        story += [sec("SECTION I — CRIME CLASSIFICATION & SUBJECT PERSONNEL PROFILE"), Spacer(1,6)]
+        story += [sec("SECTION I â€” CRIME CLASSIFICATION & SUBJECT PERSONNEL PROFILE"), Spacer(1,6)]
 
         # Classify Offense Type Dynamically
         act_upper = str(transaction.get("action_type", "")).upper()
@@ -349,8 +349,8 @@ class EvidenceBuilder:
             ["Subject Personnel ID:", emp_id, "CBSI Risk Score:", Paragraph(f"<b>{cbsi_score}/100</b>", S("cb", fontSize=14, textColor=cbsi_col, fontName="Helvetica-Bold"))],
             ["Primary Offense Class:", offense_title, "Escalation Class:", "CRITICAL NON-COMPLIANCE" if cbsi_score >= 80 else "SEVERE BREACH"],
             ["Reporting Division:", branch_id, "Statutory Basis:", statutory_basis],
-            ["Transaction Reference:", str(transaction.get("transaction_id","—"))[:28], "Instruction Category:", transaction.get("action_type","—")],
-            ["Incident Timestamp:", str(transaction.get("timestamp","—")), "Total Exposure / Quantum:", f"INR {float(transaction.get('amount',0)):,.2f}"],
+            ["Transaction Reference:", str(transaction.get("transaction_id","â€”"))[:28], "Instruction Category:", transaction.get("action_type","â€”")],
+            ["Incident Timestamp:", str(transaction.get("timestamp","â€”")), "Total Exposure / Quantum:", f"INR {float(transaction.get('amount',0)):,.2f}"],
         ]
         pf_rows = [[Paragraph(f"<b>{r[0]}</b>", S("pk", fontSize=7.5, fontName="Helvetica-Bold", textColor=C_BLUE)), Paragraph(str(r[1]), S("pv", fontSize=7.5, fontName="Helvetica", textColor=C_DARK)),
                     Paragraph(f"<b>{r[2]}</b>", S("pk", fontSize=7.5, fontName="Helvetica-Bold", textColor=C_BLUE)), r[3] if isinstance(r[3], Paragraph) else Paragraph(str(r[3]), S("pv", fontSize=7.5, fontName="Helvetica", textColor=C_DARK))] for r in profile_data]
@@ -360,8 +360,8 @@ class EvidenceBuilder:
         story.extend(narrative_flowables)
         story.append(Spacer(1, 10))
 
-        # ── SECTION II: CHRONOLOGICAL SEQUENCE OF EVENTS ──
-        story += [sec("SECTION II — CHRONOLOGICAL SEQUENCE OF EVENTS (INCIDENT TIMELINE)"), Spacer(1,6)]
+        # â”€â”€ SECTION II: CHRONOLOGICAL SEQUENCE OF EVENTS â”€â”€
+        story += [sec("SECTION II â€” CHRONOLOGICAL SEQUENCE OF EVENTS (INCIDENT TIMELINE)"), Spacer(1,6)]
 
         timeline_events = transaction.get("timeline") or transaction.get("events") or []
         if not timeline_events:
@@ -369,9 +369,9 @@ class EvidenceBuilder:
             base_time = str(transaction.get("timestamp", datetime.now().strftime("%H:%M:%S")))
             amt_val = float(transaction.get("amount", 0))
             timeline_events = [
-                {"time": "09:55:11", "action": "DB_Read — Reconnaissance & Target Record Enumeration", "quantum": f"INR {max(amt_val * 0.35, 150000):,.2f}", "flag": "SUSPICIOUS ACCESS"},
-                {"time": "10:07:49", "action": f"{transaction.get('action_type', 'SYSTEM_BULK_EXPORT')} — Initial Execution & Exfiltration", "quantum": f"INR {max(amt_val * 0.65, 380000):,.2f}", "flag": "HIGH SEVERITY ALERT"},
-                {"time": base_time, "action": f"Lateral Session Event — Shared IP/Terminal Audit Trigger ({device_ip})", "quantum": f"INR {amt_val:,.2f}", "flag": "CRITICAL RISK (100/100)"}
+                {"time": "09:55:11", "action": "DB_Read â€” Reconnaissance & Target Record Enumeration", "quantum": f"INR {max(amt_val * 0.35, 150000):,.2f}", "flag": "SUSPICIOUS ACCESS"},
+                {"time": "10:07:49", "action": f"{transaction.get('action_type', 'SYSTEM_BULK_EXPORT')} â€” Initial Execution & Exfiltration", "quantum": f"INR {max(amt_val * 0.65, 380000):,.2f}", "flag": "HIGH SEVERITY ALERT"},
+                {"time": base_time, "action": f"Lateral Session Event â€” Shared IP/Terminal Audit Trigger ({device_ip})", "quantum": f"INR {amt_val:,.2f}", "flag": "CRITICAL RISK (100/100)"}
             ]
 
         tl_header = [
@@ -384,9 +384,9 @@ class EvidenceBuilder:
         for ev in timeline_events:
             flag_text = str(ev.get("flag", "ALERT"))
             tl_rows.append([
-                Paragraph(str(ev.get("time", "—")), S("t_t", fontSize=7.5, fontName="Courier-Bold", textColor=C_DARK)),
-                Paragraph(str(ev.get("action", "—")), S("t_a", fontSize=7.5, fontName="Helvetica", textColor=C_DARK)),
-                Paragraph(str(ev.get("quantum", "—")), S("t_q", fontSize=7.5, fontName="Helvetica-Bold", textColor=C_DARK)),
+                Paragraph(str(ev.get("time", "â€”")), S("t_t", fontSize=7.5, fontName="Courier-Bold", textColor=C_DARK)),
+                Paragraph(str(ev.get("action", "â€”")), S("t_a", fontSize=7.5, fontName="Helvetica", textColor=C_DARK)),
+                Paragraph(str(ev.get("quantum", "â€”")), S("t_q", fontSize=7.5, fontName="Helvetica-Bold", textColor=C_DARK)),
                 Paragraph(f"<b>{flag_text}</b>", S("t_f", fontSize=7, fontName="Helvetica-Bold", textColor=C_RED if "CRITICAL" in flag_text or "HIGH" in flag_text else C_AMBER))
             ])
         story += [_table(tl_rows, [1.1*inch, 3.4*inch, 1.4*inch, 1.3*inch], [
@@ -398,8 +398,8 @@ class EvidenceBuilder:
             ("BOTTOMPADDING", (0,0), (-1,-1), 4),
         ]), Spacer(1, 10)]
 
-        # ── SECTION III: CONCRETE FORENSIC EVIDENCE & PROOF REGISTRY ──
-        story += [sec("SECTION III — CONCRETE FORENSIC EVIDENCE & EXHIBIT REGISTRY"), Spacer(1,6)]
+        # â”€â”€ SECTION III: CONCRETE FORENSIC EVIDENCE & PROOF REGISTRY â”€â”€
+        story += [sec("SECTION III â€” CONCRETE FORENSIC EVIDENCE & EXHIBIT REGISTRY"), Spacer(1,6)]
 
         exhibits_data = [
             ["Exhibit Code", "Evidence Domain", "Technical Artifact & Proof Registry", "Verification Status"],
@@ -407,19 +407,19 @@ class EvidenceBuilder:
                 "EXH-NET-01",
                 "Network & Lateral Forensics",
                 f"Shared IP Address Overlay: Identified session on {device_ip} matching peer profile. Proxied MAC fingerprint ({device_mac}) confirms unauthorized terminal sharing.",
-                "VERIFIED — LOG MATCH"
+                "VERIFIED â€” LOG MATCH"
             ],
             [
                 "EXH-FIN-02",
                 "Exfiltration Quantum Audit",
                 f"Cumulative monetary/data exposure recorded at INR {float(transaction.get('amount',0)):,.2f}. Transaction channel: {transaction.get('transfer_channel', 'SYSTEM_CORE')}.",
-                "VERIFIED — DB AUDIT"
+                "VERIFIED â€” DB AUDIT"
             ],
             [
                 "EXH-AI-03",
                 "Behavioral & NLP Intent",
                 f"VaultMind NLP Agent 4 detected high-risk intent signals in communication logs. Dominant Trigger: {dominant_reason}.",
-                "VERIFIED — AI FLAG"
+                "VERIFIED â€” AI FLAG"
             ],
             [
                 "EXH-LEDGER-04",
@@ -448,18 +448,18 @@ class EvidenceBuilder:
             ("BOTTOMPADDING", (0,0), (-1,-1), 4),
         ]), Spacer(1, 10)]
 
-        # ── SECTION IV: MAKER / CHECKER DUAL AUTHORIZATION ──
-        story += [sec("SECTION IV — MAKER / CHECKER DUAL AUTHORIZATION"), Spacer(1,6)]
+        # â”€â”€ SECTION IV: MAKER / CHECKER DUAL AUTHORIZATION â”€â”€
+        story += [sec("SECTION IV â€” MAKER / CHECKER DUAL AUTHORIZATION"), Spacer(1,6)]
         sig_header = _table([[Paragraph("<b>MAKER (Investigating Forensic Officer)</b>", S("mh", fontSize=8.5, fontName="Helvetica-Bold", textColor=C_WHITE, alignment=TA_CENTER)),
                               Paragraph("<b>CHECKER (Chief Reviewing Authority)</b>", S("ch", fontSize=8.5, fontName="Helvetica-Bold", textColor=C_WHITE, alignment=TA_CENTER))]], [3.6*inch, 3.6*inch], [("BACKGROUND", (0,0),(-1,-1), C_BLUE), ("GRID", (0,0),(-1,-1), 0.5, C_MGREY)])
         story.append(sig_header)
-        
+
         sig_fields = [("Investigator Name:", "Reviewing Authority:"), ("Employee ID:", "Employee ID:"), ("Date:", "Date:"), ("Signature:", "Signature:")]
         sig_rows = [[Paragraph(f"<b>{r[0]}</b>", S("sf", fontSize=7.5, fontName="Helvetica-Bold", textColor=C_DARK)), Paragraph(f"<b>{r[1]}</b>", S("sf", fontSize=7.5, fontName="Helvetica-Bold", textColor=C_DARK))] for r in sig_fields]
         story += [_table(sig_rows, [3.6*inch, 3.6*inch], [("GRID", (0,0),(-1,-1), 0.5, C_MGREY), ("TOPPADDING", (0,0),(-1,-1), 8), ("BOTTOMPADDING", (0,0),(-1,-1), 8)])]
 
         doc.build(story)
-        
+
         if hasattr(self, 'supabase') and self.supabase:
             try:
                 with open(output_path, "rb") as f:
@@ -469,5 +469,5 @@ class EvidenceBuilder:
             except Exception as e:
                 print(f"[EvidenceBuilder] Supabase storage upload failed ({e}). Returning local PDF path.")
                 return output_path
-            
+
         return output_path

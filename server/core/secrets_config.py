@@ -1,4 +1,4 @@
-# server/core/secrets_config.py
+﻿# server/core/secrets_config.py
 """
 VaultMind Enterprise Secrets Governance Module
 Centralizes loading, validation, masking, and environment checks for sensitive operational credentials.
@@ -26,21 +26,21 @@ class SecretsManager:
     def get(self, key: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
         """Retrieve a secret by key. If required is True and key is missing/placeholder, raises ValueError in production."""
         val = os.getenv(key, default)
-        
+
         if required and not val:
             msg = f"[SecretsManager] Critical secret '{key}' is not set."
             if self.env == "production":
                 raise ValueError(f"FATAL: {msg} Server cannot start in production mode without '{key}'.")
             else:
                 logger.warning(f"{msg} Using default/fallback behavior for development.")
-                
+
         # Check if val is a placeholder (e.g. YOUR_API_KEY_HERE)
         if val and ("YOUR_" in val or "_HERE" in val):
             if self.env == "production":
                 raise ValueError(f"FATAL: Secret '{key}' contains a placeholder string in production environment.")
             else:
                 logger.warning(f"[SecretsManager] Secret '{key}' appears to be a placeholder: '{val}'")
-                
+
         return val
 
     def get_int(self, key: str, default: int) -> int:

@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -35,18 +35,18 @@ def main():
     for user in users:
         emp_id = user.get("emp_id")
         password = user.get("password")
-        
+
         if not password:
             continue
-            
+
         # Check if already a bcrypt hash (usually starts with $2b$, $2a$, or $2y$)
         if password.startswith("$2b$") or password.startswith("$2a$") or password.startswith("$2y$"):
             print(f"Skipping {emp_id} - already hashed.")
             continue
-            
+
         print(f"Hashing password for {emp_id}...")
         hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        
+
         # Update the database
         try:
             update_response = supabase.table("bank_employees").update({"password": hashed_pw}).eq("emp_id", emp_id).execute()

@@ -1,4 +1,4 @@
-"""
+﻿"""
 VaultMind 2.0 - Persistence Layer (Models)
 Defines the WORM (Write Once Read Many) compatible database schema
 for storing fraud alerts, audit logs, and multi-tenant organizations securely using SQLAlchemy.
@@ -92,4 +92,3 @@ class ModelRetrainingQueue(Base):
     original_score = Column(Float, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     is_processed = Column(Boolean, default=False, nullable=False)
-

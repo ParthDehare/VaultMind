@@ -1,4 +1,4 @@
-"""
+﻿"""
 VaultMind 3.0 - Feedback & Active Learning Routes (`feedback_routes.py`)
 ===================================================================
 Provides human-in-the-loop analyst feedback endpoints:
@@ -51,7 +51,7 @@ def submit_alert_feedback(
     # 2. Persist to Supabase model_retraining_queue with Row-Level Security (tenant_id)
     tenant_id = payload.tenant_id or "default_tenant"
     scoped_db = get_tenant_supabase_client(tenant_id)
-    
+
     db_record = {
         "alert_id": alert_id,
         "employee_id": payload.employee_id,

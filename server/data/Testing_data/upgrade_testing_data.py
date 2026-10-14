@@ -1,4 +1,4 @@
-import pandas as pd
+﻿import pandas as pd
 import os
 
 def upgrade_data():
@@ -35,7 +35,7 @@ def upgrade_data():
             # Deterministic distribution across the 10 roles
             emp_num = int(emp_id.split("_")[-1]) if "_" in emp_id and emp_id.split("_")[-1].isdigit() else idx
             new_role = roles[emp_num % len(roles)]
-        
+
         emp_df.at[idx, "emp_class"] = new_role
         emp_role_map[emp_id] = new_role
 
@@ -46,11 +46,11 @@ def upgrade_data():
         amt_str = f"Rs. {amount:,.2f}" if amount else "Rs. 0"
         time_str = str(timestamp).split(" ")[1] + " IST" if " " in str(timestamp) else "02:24:18 IST"
         if role in ["CORE_DBA", "IT_ADMIN"]:
-            return f"The transaction was executed under infrastructure designation {role}. Under Bank Policy §4.2, technical administration roles carry zero financial initiation mandate. Execution of monetary transfer of {amt_str} outside core hours constitutes strict segregation-of-duties (SoD) breach."
+            return f"The transaction was executed under infrastructure designation {role}. Under Bank Policy Â§4.2, technical administration roles carry zero financial initiation mandate. Execution of monetary transfer of {amt_str} outside core hours constitutes strict segregation-of-duties (SoD) breach."
         if role in ["TELLER", "CLERK"] and (amount > 500000 or action in ["Override", "Approve"]):
             return f"The action '{action}' carried out under designation {role} exceeds authorized mandate ceiling of Rs. 500,000 without secondary supervisory sign-off (Maker-Checker Protocol). Statistical variance establishes 256.6 sigma deviation above branch peer baseline."
         if channel == "SWIFT" or role == "SWIFT_OPERATOR" or amount > 10000000:
-            return f"Outgoing high-value transfer of {amt_str} initiated outside core banking hours without mandatory dual-custody authorization required under RBI Master Circular on Electronic Funds Transfer and PMLA §12 reporting threshold."
+            return f"Outgoing high-value transfer of {amt_str} initiated outside core banking hours without mandatory dual-custody authorization required under RBI Master Circular on Electronic Funds Transfer and PMLA Â§12 reporting threshold."
         return f"Compound anomaly: unauthorized action '{action}' of {amt_str} executed outside standard shift hours. Statistical evaluation against peer cluster indicates severe monetary variance exceeding baseline tolerances."
 
     for file_path, name in [(hist_csv, "historical_warmup_data.csv"), (live_csv, "live_demo_stream.csv")]:

@@ -1,10 +1,10 @@
-import time
+﻿import time
 from datetime import datetime
 from core.db_connections import redis_db
 
 class HistoricalState:
     """Tracks 7-day moving averages, historical volumes, live adjacency graph, and representation features."""
-    
+
     def __init__(self):
         self.redis = redis_db
         # 7 days in seconds
@@ -131,13 +131,13 @@ class HistoricalState:
     def update_user_volume(self, emp_id: str, amount: float):
         if not self.redis:
             return
-        
+
         now = time.time()
         key = f"volume_history:{emp_id}"
-        
+
         # Add transaction amount with timestamp as score
         self.redis.zadd(key, {f"{now}:{amount}": now})
-        
+
         # Remove transactions older than 7 days
         self.redis.zremrangebyscore(key, "-inf", now - self.retention_period)
 
@@ -145,13 +145,13 @@ class HistoricalState:
         """Returns the average transaction amount over the last 7 days."""
         if not self.redis:
             return 0.0
-            
+
         key = f"volume_history:{emp_id}"
         records = self.redis.zrange(key, 0, -1)
-        
+
         if not records:
             return 0.0
-            
+
         total_volume = 0.0
         for record in records:
             # record format is "timestamp:amount"
@@ -160,7 +160,7 @@ class HistoricalState:
                 total_volume += float(amount_str)
             except ValueError:
                 continue
-                
+
         return total_volume / len(records)
 
 historical_state = HistoricalState()

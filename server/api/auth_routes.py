@@ -1,4 +1,4 @@
-# vaultmind_auth_routes.py
+﻿# vaultmind_auth_routes.py
 # Login and Me endpoints for VaultMind authentication
 
 from fastapi import APIRouter, HTTPException, Depends, Request, Response, status
@@ -16,9 +16,9 @@ from core.db_connections import supabase_db
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # REQUEST / RESPONSE SCHEMAS
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class LoginRequest(BaseModel):
     email:    str
     password: str
@@ -34,9 +34,9 @@ class SignupRequest(BaseModel):
     password: str
     role:     str  # 'analyst' or 'auditor'
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # POST /api/auth/signup
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(payload: SignupRequest):
     """
@@ -48,7 +48,7 @@ async def signup(payload: SignupRequest):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Missing required fields."
         )
-    
+
     # Check if user already exists
     existing_user = get_user_from_supabase(payload.email)
     if existing_user:
@@ -56,7 +56,7 @@ async def signup(payload: SignupRequest):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Employee ID / Email already registered."
         )
-    
+
     if payload.role not in ["analyst", "auditor"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -64,7 +64,7 @@ async def signup(payload: SignupRequest):
         )
 
     hashed_pw = hash_password(payload.password)
-    
+
     try:
         response = supabase_db.table("bank_employees").insert({
             "emp_id": payload.email,
@@ -72,13 +72,13 @@ async def signup(payload: SignupRequest):
             "password": hashed_pw,
             "role": payload.role
         }).execute()
-        
+
         if not response.data:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to register user."
             )
-            
+
         return {
             "message": "User registered successfully",
             "user": {
@@ -93,9 +93,9 @@ async def signup(payload: SignupRequest):
             detail=f"Database error during registration: {str(e)}"
         )
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # POST /api/auth/login
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 failed_login_attempts = {}
 
 @router.post("/login", response_model=LoginResponse)
@@ -121,7 +121,7 @@ async def login(request: Request, payload: LoginRequest):
             detail="Incorrect email or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-        
+
     failed_login_attempts[ip] = 0
 
     token = create_access_token({
@@ -140,7 +140,7 @@ async def login(request: Request, payload: LoginRequest):
             "name":  user["name"],
         },
     })
-    
+
     # We set the cookie as httponly, secure, samesite=lax
     response.set_cookie(
         key="vm_token",
@@ -150,7 +150,7 @@ async def login(request: Request, payload: LoginRequest):
         samesite="lax",
         max_age=3600  # 1 hour
     )
-    
+
     return response
 
 @router.post("/logout")
@@ -158,9 +158,9 @@ async def logout(response: Response):
     response.delete_cookie("vm_token")
     return {"message": "Logged out successfully"}
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # GET /api/auth/me
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @router.get("/me")
 async def get_me(current_user: TokenData = Depends(get_current_user)):
     """

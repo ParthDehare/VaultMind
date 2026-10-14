@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+﻿from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
 import random
@@ -60,7 +60,7 @@ def get_kpis(current_user: TokenData = Depends(get_current_user)):
     avg_cbsi = 0
     if historical_state.stats["transactions_scanned"] > 0:
         avg_cbsi = historical_state.stats["cbsi_sum"] / historical_state.stats["transactions_scanned"]
-    
+
     return {
         "transactions_scanned": historical_state.stats["transactions_scanned"],
         "critical_alerts": historical_state.stats["critical_alerts"],
@@ -103,7 +103,7 @@ def generate_explanation(emp_id: str, payload: Optional[ExplainRequest] = None, 
     try:
         genai.configure(api_key=secrets.get("GEMINI_API_KEY"))
         model = genai.GenerativeModel('gemini-2.0-flash')
-        
+
         prompt = (
             f"You are a Senior SOC Analyst for VaultMind AI. "
             f"Explain in exactly 3 short, professional sentences why Employee {emp_id} "
@@ -111,7 +111,7 @@ def generate_explanation(emp_id: str, payload: Optional[ExplainRequest] = None, 
             f"Context: Action: {action_type}, Amount: {amount}, Channel: {channel}, Remarks/Flags: {remarks}. "
             "Focus on the risk implications of this behavior."
         )
-        
+
         response = model.generate_content(prompt)
         explanation = response.text.strip()
     except Exception as e:
@@ -144,7 +144,7 @@ def download_evidence(emp_id: Optional[str] = None, filename: Optional[str] = No
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     reports_dir = os.path.join(base_dir, "evidence_output", "pdf_reports")
     reports_dir_real = os.path.realpath(reports_dir)
-    
+
     target_file = None
     if filename:
         # Remove any path prefixes from the frontend filename string
@@ -202,7 +202,7 @@ def download_evidence(emp_id: Optional[str] = None, filename: Optional[str] = No
                     flag = "CRITICAL BREACH" if int(a.get("cbsi_score", 100)) >= 80 else "HIGH ANOMALY"
                     timeline_events.append({
                         "time": t_str.split("T")[-1][:8] if "T" in t_str else t_str[:8],
-                        "action": f"{a_type} — Dynamic Event Audit Log",
+                        "action": f"{a_type} â€” Dynamic Event Audit Log",
                         "quantum": f"INR {q_val:,.2f}",
                         "flag": flag
                     })
@@ -216,7 +216,7 @@ def download_evidence(emp_id: Optional[str] = None, filename: Optional[str] = No
                 "timeline": timeline_events
             }
             generated_path = eb.generate_evidence_package(dynamic_tx, highest_cbsi, dominant_reason)
-            
+
             # Serve local file directly to avoid CORS issues during blob fetch
             if os.path.exists(reports_dir):
                 existing_files = [f for f in os.listdir(reports_dir) if f.endswith(".pdf") and (f"_{emp_id}.pdf" in f or f"{emp_id}" in f)]
@@ -235,7 +235,7 @@ def download_evidence(emp_id: Optional[str] = None, filename: Optional[str] = No
                     filename=os.path.basename(generated_path),
                     media_type='application/pdf'
                 )
-            
+
             if generated_path and generated_path.startswith("http"):
                 from fastapi.responses import RedirectResponse
                 return RedirectResponse(url=generated_path)
@@ -260,7 +260,7 @@ def file_str(payload: STRRequest, current_user: TokenData = Depends(require_role
     return {"status": "success", "message": f"STR filed successfully for {payload.emp_id}"}
 
 # ---------------------------------------------------------
-# ENDPOINT NEW: Dashboard Init — loads historical warmup data
+# ENDPOINT NEW: Dashboard Init â€” loads historical warmup data
 # ---------------------------------------------------------
 def _risk_tier_from_cbsi(cbsi: int) -> str:
     if cbsi >= 70: return "CRITICAL"
@@ -308,21 +308,21 @@ def submit_feedback(emp_id: str, feedback: FeedbackRequest, current_user: TokenD
 @router.post("/orchestrator/scan")
 async def orchestrator_scan(tx: TransactionRequest, current_user: TokenData = Depends(require_role("auditor", "admin", "manager"))):
     tx_dict = tx.dict()
-    
+
     print(f"\n{'='*70}")
-    print(f"🕵️‍♂️ [MANUAL SCAN TRIGGERED] Processing EMP_ID: {tx_dict.get('emp_id')}")
-    print(f"💰 Amount: {tx_dict.get('amount')} | Channel: {tx_dict.get('transfer_channel')}")
+    print(f"ðŸ•µï¸â€â™‚ï¸ [MANUAL SCAN TRIGGERED] Processing EMP_ID: {tx_dict.get('emp_id')}")
+    print(f"ðŸ’° Amount: {tx_dict.get('amount')} | Channel: {tx_dict.get('transfer_channel')}")
     print(f"{'='*70}")
 
     # Pass the transaction through the Orchestrator
     result = await orchestrator.process_transaction(tx_dict)
-    
+
     predicted_score = result.get('cbsi_score', 0)
     print(f"\n{'='*70}")
-    print(f"✅ Model predicted score: {predicted_score}/100")
-    print(f"   Risk Level: {'🔴 CRITICAL' if predicted_score >= 70 else '🟡 HIGH' if predicted_score >= 50 else '🟢 NORMAL'}")
+    print(f"âœ… Model predicted score: {predicted_score}/100")
+    print(f"   Risk Level: {'ðŸ”´ CRITICAL' if predicted_score >= 70 else 'ðŸŸ¡ HIGH' if predicted_score >= 50 else 'ðŸŸ¢ NORMAL'}")
     print(f"{'='*70}\n")
-    
+
     return {
         "transaction_id": tx_dict['transaction_id'],
         "emp_id": tx_dict['emp_id'],
@@ -344,19 +344,19 @@ def get_employee_roster(current_user: TokenData = Depends(get_current_user)):
         # Go up from server/api/ -> server/ -> server/data/Testing_data/
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         emp_csv = os.path.join(base_dir, "data", "Testing_data", "employees_master.csv")
-        
+
         if not os.path.exists(emp_csv):
             return {"employees": [], "error": "Employee data not found"}
-        
+
         emp_df = pd.read_csv(emp_csv)
-        
+
         # Select relevant columns for frontend
         cols_to_return = ["emp_id", "emp_class", "branch_id", "work_start_hr", "work_end_hr", "peer_cluster"]
         cols_available = [c for c in cols_to_return if c in emp_df.columns]
-        
+
         if not cols_available:
             return {"employees": [], "error": "Required columns not found in employee data"}
-        
+
         roster_data = emp_df[cols_available].drop_duplicates(subset=["emp_id"]).fillna("").to_dict('records')
         return {
             "employees": roster_data,
@@ -374,7 +374,7 @@ def get_latest_alerts(current_user: TokenData = Depends(get_current_user)):
     """Fast-path: Read latest 50 alerts from Redis or memory fallback"""
     from core.db_connections import redis_db
     import json
-    
+
     if redis_db:
         try:
             raw = redis_db.lrange("live_alerts", 0, 49)
@@ -382,7 +382,7 @@ def get_latest_alerts(current_user: TokenData = Depends(get_current_user)):
                 return [json.loads(r) for r in raw]
         except Exception as e:
             print(f"[api_server] Redis error fetching alerts: {e}")
-            
+
     # Fallback to in-memory list from orchestrator
     if hasattr(orchestrator, "in_memory_alerts"):
         return orchestrator.in_memory_alerts
@@ -623,4 +623,3 @@ def receive_fiu_cross_bank_alert(payload: FIUAlertWebhookRequest, current_user: 
         "action": "FLAGGED_FOR_FCU_INVESTIGATION",
         "details": alert_payload
     }
-

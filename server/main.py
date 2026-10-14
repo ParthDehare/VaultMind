@@ -1,4 +1,4 @@
-# vaultmind_main.py
+﻿# vaultmind_main.py
 import sys
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -25,7 +25,7 @@ from api.api_server import router as api_router
 from api.auth_routes import router as auth_router
 from api.feedback_routes import router as feedback_router
 
-# ── Rate Limiter Setup ──
+# â”€â”€ Rate Limiter Setup â”€â”€
 limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
 app = FastAPI(title="VaultMind Backend API")
@@ -37,7 +37,7 @@ app.include_router(api_router,  prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(feedback_router, prefix="/api")
 
-# Allow React to connect — explicit origin whitelist governed by secrets module
+# Allow React to connect â€” explicit origin whitelist governed by secrets module
 ALLOWED_ORIGINS = secrets.get_list(
     "ALLOWED_ORIGINS",
     default=["https://v2.vaultmind.systems","http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"]
@@ -51,7 +51,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── 1. Boot up the Brain ──
+# â”€â”€ 1. Boot up the Brain â”€â”€
 orchestrator = MasterOrchestrator()
 
 # Keep track of connected React clients
@@ -71,12 +71,12 @@ async def websocket_endpoint(websocket: WebSocket):
     if not token:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
-        
+
     user = decode_jwt(token)
     if not user:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
-        
+
     await websocket.accept()
     active_connections.append(websocket)
     print("React Frontend Connected to WebSockets via Secure Cookie/Header!")
@@ -97,7 +97,7 @@ async def broadcast_to_websockets(data: dict):
         except Exception as e:
             print(f"[Main] Error sending to websocket: {e}")
             dead_connections.append(connection)
-            
+
     for dead in dead_connections:
         if dead in active_connections:
             active_connections.remove(dead)
@@ -142,13 +142,13 @@ async def redis_pubsub_listener():
 async def startup_event():
     global main_loop
     main_loop = asyncio.get_running_loop()
-    
+
     # Load ML models at startup
     ml_models.load_all()
-    
+
     # Start Redis Pub/Sub listener for horizontal WebSocket scalability across worker pods
     asyncio.create_task(redis_pubsub_listener())
-    
+
     # Check whether to run embedded Kafka worker or rely on standalone service
     if secrets.get("EMBEDDED_KAFKA_CONSUMER", "true").lower() == "true":
         try:
@@ -163,9 +163,9 @@ async def startup_event():
         print("[Main] External KafkaConsumerWorker mode (EMBEDDED_KAFKA_CONSUMER=false).")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# AUTO KAFKA TRIGGER — called by frontend right after login
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# AUTO KAFKA TRIGGER â€” called by frontend right after login
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import pandas as pd
 import time
 import os
@@ -179,7 +179,7 @@ async def _demo_stream_loop():
         print(f"[Demo] Could not find {csv_path}")
         _demo_task_running = False
         return
-        
+
     try:
         df = pd.read_csv(csv_path)
         while True:
@@ -214,7 +214,7 @@ async def get_next_transaction(current_user: TokenData = Depends(get_current_use
         return txn
     except Exception as e:
         return {"error": "No transaction available", "details": str(e)}
-    
+
 
 @app.get("/api/evidence/download")
 def download_evidence(emp_id: str, current_user: TokenData = Depends(get_current_user)):
@@ -225,10 +225,10 @@ def file_str(payload: dict, current_user: TokenData = Depends(require_role("audi
     emp_id = payload.get("emp_id")
     cbsi_score = payload.get("cbsi_score")
     return {
-        "status": "success", 
+        "status": "success",
         "message": f"STR successfully filed securely to FIU-IND for node {emp_id}"
     }
 
 @app.get("/")
 def read_root():
-    return {"status": "VaultMind Backend is LIVE 🚀"}
+    return {"status": "VaultMind Backend is LIVE ðŸš€"}

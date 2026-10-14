@@ -1,4 +1,4 @@
-# server/services/kafka_consumer_service.py
+﻿# server/services/kafka_consumer_service.py
 """
 VaultMind Decoupled Kafka Consumer Worker & DLQ Service
 Can be run as an independent microservice (`python -m services.kafka_consumer_service`)
@@ -40,7 +40,7 @@ class KafkaConsumerWorker:
         self.max_retries = secrets.get_int("KAFKA_MAX_RETRIES", 3)
         self.running = False
         self.orchestrator = MasterOrchestrator()
-        
+
         # Initialize DLQ producer
         try:
             self.dlq_producer = Producer({"bootstrap.servers": self.broker})
@@ -54,7 +54,7 @@ class KafkaConsumerWorker:
         if not self.dlq_producer:
             logger.critical(f"[DLQ DROP] No DLQ producer. Dropped payload: {raw_payload[:100]}... Error: {error_msg}")
             return
-            
+
         try:
             dlq_message = {
                 "original_payload": raw_payload,
@@ -81,14 +81,14 @@ class KafkaConsumerWorker:
             try:
                 # Score transaction via MasterOrchestrator
                 scored_tx = await self.orchestrator.process_transaction(tx)
-                
+
                 # Publish to Redis Pub/Sub for cross-worker WebSocket broadcast
                 if redis_db:
                     try:
                         redis_db.publish("vaultmind:alerts", json.dumps(scored_tx))
                     except Exception as redis_err:
                         logger.error(f"[KafkaWorker] Redis Pub/Sub broadcast failed: {redis_err}")
-                        
+
                 return scored_tx
             except Exception as e:
                 attempt += 1
@@ -109,7 +109,7 @@ class KafkaConsumerWorker:
             "auto.offset.reset": "latest",
             "enable.auto.commit": True
         }
-        
+
         try:
             consumer = Consumer(consumer_config)
             consumer.subscribe([self.topic])

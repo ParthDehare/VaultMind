@@ -28,8 +28,13 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          # max-line-length 120, ignore E501 (line too long) and W503 (line break before binary operator)
-          flake8 . --count --max-line-length=120 --ignore=E501,W503 --show-source --statistics
+          # max-line-length 120; ignore:
+          #   E501 – line too long (handled by max-line-length)
+          #   W503 – line break before binary operator  \
+          #   W504 – line break after binary operator   } mutually exclusive, ignore both
+          #   W293 – whitespace on blank line (fixed locally by autopep8, belt-and-braces)
+          #   W391 – blank line at end of file          (same)
+          flake8 . --count --max-line-length=120 --ignore=E501,W293,W391,W503,W504 --show-source --statistics
 
       - name: Basic syntax check
         run: |

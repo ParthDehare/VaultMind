@@ -1,4 +1,4 @@
-# vaultmind_orchestrator.py
+﻿# vaultmind_orchestrator.py
 import json
 import logging
 import math
@@ -43,12 +43,12 @@ class MasterOrchestrator:
         """
         tenant_id = transaction.get("tenant_id", "default_tenant")
         transaction["tenant_id"] = tenant_id
-        
+
         employee_id = transaction.get("emp_id", transaction.get("employee_id", "UNKNOWN"))
         amount_val = transaction.get("amount")
         amount = float(amount_val) if amount_val is not None else 0.0
-        
-        # ── 0. Update Historical State & Graph Adjacency ──
+
+        # â”€â”€ 0. Update Historical State & Graph Adjacency â”€â”€
         historical_state.update_user_volume(employee_id, float(amount))
         src_acc = str(transaction.get("account_id") or transaction.get("source_account") or employee_id or "UNKNOWN")
         dst_acc = str(transaction.get("destination_account") or "UNKNOWN")
@@ -57,19 +57,19 @@ class MasterOrchestrator:
         agent_scores = {}
         total_weight = 0.0
         weighted_sum = 0.0
-        
+
         # FIXED: Priority check for 'emp_id' first, then 'employee_id'
         employee_id = transaction.get("emp_id", transaction.get("employee_id", "UNKNOWN"))
-        
-        # ── 1. The Instant Kill-Switch (DeceptionGuard) ──
+
+        # â”€â”€ 1. The Instant Kill-Switch (DeceptionGuard) â”€â”€
         # Honeypot logic has absolute priority.
         a8_result = self.a8_deception.evaluate(transaction)
         if a8_result['severity_index'] == 100:
             evidence_path = self.a7_evidence.generate_evidence_package(transaction, 100, [a8_result['reason']])
-            
-            # --- ⚡ REDIS & SUPABASE TRIGGERS (FOR KILL-SWITCH) ---
+
+            # --- âš¡ REDIS & SUPABASE TRIGGERS (FOR KILL-SWITCH) ---
             self.update_redis_cbsi(employee_id, 100)
-            
+
             response = {
                 "transaction_id": transaction.get("transaction_id", "UNKNOWN"),
                 "cbsi_score": 100,
@@ -96,7 +96,7 @@ class MasterOrchestrator:
 
             if "employee_id" in final_response and "emp_id" not in final_response:
                 final_response["emp_id"] = final_response["employee_id"]
-            
+
             def clean_nans(obj):
                 if isinstance(obj, dict):
                     return {k: clean_nans(v) for k, v in obj.items()}
@@ -105,10 +105,10 @@ class MasterOrchestrator:
                 elif isinstance(obj, float) and math.isnan(obj):
                     return None
                 return obj
-                
+
             return clean_nans(final_response)
 
-        # ── 2. Run All Standard Agents in Parallel ──
+        # â”€â”€ 2. Run All Standard Agents in Parallel â”€â”€
         results_list = await asyncio.gather(
             asyncio.to_thread(self.a1_behaviour.evaluate, transaction),
             asyncio.to_thread(self.a2_fundflow.evaluate, transaction),
@@ -117,7 +117,7 @@ class MasterOrchestrator:
             asyncio.to_thread(self.a5_network.evaluate, transaction),
             asyncio.to_thread(self.a6_regulatory.evaluate, transaction),
         )
-        
+
         results = dict(zip(
             ["BehaviourWatch", "FundFlow", "VendorGuard", "ComplaintSignal", "NetworkIntel", "RegulatoryAI"],
             results_list
@@ -141,7 +141,7 @@ class MasterOrchestrator:
         for agent_name, res in results.items():
             score = res.get('severity_index', 0)
             agent_scores[agent_name] = score
-            
+
             # Add to weighted average
             weight = weights[agent_name]
             weighted_sum += (score * weight)
@@ -164,18 +164,18 @@ class MasterOrchestrator:
             historical_state.stats["critical_alerts"] += 1
         elif final_cbsi >= 50:
             historical_state.stats["high_risk_flags"] += 1
-            
+
         # Graph updates
         acc_touched = transaction.get("account_touched") or transaction.get("account_id") or transaction.get("source_account") or "UNKNOWN"
         dst_acc = transaction.get("destination_account", "UNKNOWN")
         amt = transaction.get("amount", 0)
         historical_state.record_graph_edge(acc_touched, dst_acc, amt)
 
-        # ── 3. Decision Engine ──
+        # â”€â”€ 3. Decision Engine â”€â”€
         decision = "PASS"
         evidence = "Not Required"
         risk_level = "LOW"
-        
+
         if final_cbsi >= 80:
             decision = "ISOLATE"
             risk_level = "HIGH"
@@ -199,14 +199,14 @@ class MasterOrchestrator:
             "evidence_status": evidence,
             "scoring_method": results.get("BehaviourWatch", {}).get("scoring_method", "UNKNOWN")
         }
-        
+
         final_response = {**transaction, **response}
 
-        # --- ⚡ REDIS TRIGGERS ---
+        # --- âš¡ REDIS TRIGGERS ---
         self.update_redis_cbsi(employee_id, final_cbsi)
         self.push_alert_to_redis(final_response)
 
-        # --- 🗄️ SUPABASE TRIGGER (Save Audit Log Only For High Risk / Generated PDFs) ---
+        # --- ðŸ—„ï¸ SUPABASE TRIGGER (Save Audit Log Only For High Risk / Generated PDFs) ---
         if risk_level == "HIGH" and evidence != "Not Required":
             asyncio.create_task(asyncio.to_thread(
                 self.save_evidence_to_db,
@@ -217,10 +217,10 @@ class MasterOrchestrator:
                 dominant_agent
             ))
         # ---------------------------------------------------------------
-        
+
         if "employee_id" in final_response and "emp_id" not in final_response:
             final_response["emp_id"] = final_response["employee_id"]
-            
+
         def clean_nans(obj):
             if isinstance(obj, dict):
                 return {k: clean_nans(v) for k, v in obj.items()}
@@ -229,14 +229,14 @@ class MasterOrchestrator:
             elif isinstance(obj, float) and math.isnan(obj):
                 return None
             return obj
-            
+
         cleaned_res = clean_nans(final_response)
         MasterOrchestrator.recent_transactions.append(cleaned_res)
         if len(MasterOrchestrator.recent_transactions) > 500:
             MasterOrchestrator.recent_transactions.pop(0)
-            
+
         return cleaned_res
-    
+
     async def score_transaction_only(self, transaction: dict) -> dict:
         """
         Scores a transaction through DeceptionGuard + the 6 standard agents and
@@ -249,7 +249,7 @@ class MasterOrchestrator:
         """
         tenant_id = transaction.get("tenant_id", "default_tenant")
         transaction["tenant_id"] = tenant_id
-        
+
         a8_result = self.a8_deception.evaluate(transaction)
         if a8_result['severity_index'] == 100:
             response = {
@@ -344,7 +344,7 @@ class MasterOrchestrator:
         if redis_db is None: return
         try:
             redis_db.hset("live_cbsi_scores", str(employee_id), float(cbsi_score))
-            print(f"⚡ [Redis Fast-Cache] Updated CBSI for {employee_id}: {cbsi_score}")
+            print(f"âš¡ [Redis Fast-Cache] Updated CBSI for {employee_id}: {cbsi_score}")
         except Exception as e:
             logging.error(f"[Redis Cache Error] {e}")
 
@@ -352,23 +352,23 @@ class MasterOrchestrator:
         """Push alert to Redis LPUSH list, keep only latest 50"""
         if not hasattr(self, "in_memory_alerts"):
             self.in_memory_alerts = []
-            
+
         self.in_memory_alerts.insert(0, alert_data)
         self.in_memory_alerts = self.in_memory_alerts[:50]
-        
+
         # Keep historical state recent_alerts in sync
         historical_state.recent_alerts.insert(0, alert_data)
         historical_state.recent_alerts = historical_state.recent_alerts[:50]
-        
+
         def clean(obj):
             import math
             if isinstance(obj, float) and math.isnan(obj): return None
             if isinstance(obj, dict): return {k: clean(v) for k, v in obj.items()}
             if isinstance(obj, list): return [clean(v) for v in obj]
             return obj
-            
+
         clean_data = clean(alert_data)
-        
+
         if redis_db is None:
             try:
                 # We dynamically import broadcast from main.py to send alerts directly
@@ -379,7 +379,7 @@ class MasterOrchestrator:
                 import logging
                 logging.error(f"[Fallback WS Send Error] {e}")
             return
-            
+
         try:
             payload_str = json.dumps(clean_data)
             redis_db.lpush("live_alerts", payload_str)
@@ -388,32 +388,32 @@ class MasterOrchestrator:
         except Exception as e:
             import logging
             logging.error(f"[Redis Alert Push/Publish Error] {e}")
-        
+
     def save_evidence_to_db(self, transaction, cbsi_score, risk_level, evidence_path, agent_flags):
         tenant_id = str(transaction.get("tenant_id", "default_tenant"))
         from core.db_connections import get_tenant_supabase_client
         scoped_db = get_tenant_supabase_client(tenant_id) or supabase_db
         if scoped_db is None:
-            print("⚠️ [DB] Supabase not connected. Skipping DB insert.")
+            print("âš ï¸ [DB] Supabase not connected. Skipping DB insert.")
             return
 
         # Prepare payload matching the Supabase 'evidence_logs' table schema with multi-tenant isolation
         data = {
             "transaction_id": str(transaction.get("transaction_id", "UNKNOWN")),
-            "employee_id": str(transaction.get("emp_id", transaction.get("employee_id", "UNKNOWN"))), 
+            "employee_id": str(transaction.get("emp_id", transaction.get("employee_id", "UNKNOWN"))),
             "cbsi_score": float(cbsi_score),
             "risk_level": str(risk_level),
             "evidence_path": str(evidence_path),
             "agent_flags": str(agent_flags),
             "tenant_id": tenant_id
         }
-        
+
         try:
             # Execute database insertion command with RLS x-tenant-id header
             response = scoped_db.table("evidence_logs").insert(data).execute()
-            logging.info(f"✅ [Audit Log] Saved evidence to Supabase DB (Tenant: {tenant_id}) for TXN: {data['transaction_id']}")
+            logging.info(f"âœ… [Audit Log] Saved evidence to Supabase DB (Tenant: {tenant_id}) for TXN: {data['transaction_id']}")
         except Exception as e:
-            logging.error(f"🔴 [DB Insert Error]: Failed to save to Supabase. Details: {e}")
+            logging.error(f"ðŸ”´ [DB Insert Error]: Failed to save to Supabase. Details: {e}")
 
 # Local Test
 if __name__ == "__main__":

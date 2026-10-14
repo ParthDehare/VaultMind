@@ -1,4 +1,4 @@
-"""
+﻿"""
 VaultMind 2.0 - agent8_deception.py
 ===================================================================
 Agent 8: DeceptionGuard - Honeypot Monitoring
@@ -48,7 +48,7 @@ class DeceptionGuard:
                             "department": row.get("department", "Unknown")
                         }
                 self.mirage_db = new_db
-            
+
             if os.path.exists(self.csv_path):
                 self.last_mtime = os.path.getmtime(self.csv_path)
 
@@ -81,15 +81,15 @@ class DeceptionGuard:
     def evaluate(self, transaction: dict) -> dict:
         """
         Evaluates an account access attempt.
-        
+
         Args:
             transaction (dict): The transaction payload.
-            
+
         Returns:
             dict: Evaluation result including risk_score, label, and metadata.
         """
         account_id = transaction.get('destination_account') or transaction.get('source_account') or transaction.get('account_id', '')
-        
+
         # Dynamically reload if file changed
         if os.path.exists(self.csv_path) and os.path.getmtime(self.csv_path) > self.last_mtime:
             self._load_database()
@@ -115,9 +115,9 @@ if __name__ == "__main__":
     print("="*65)
     print(" VaultMind 2.0 - Agent 8 (DeceptionGuard) Initialized")
     print("="*65)
-    
+
     agent = DeceptionGuard()
-    
+
     test_accounts = [
         "ACC_1092",            # Normal account
         "ACC-MIRAGE-007",      # Honeypot account
@@ -125,16 +125,16 @@ if __name__ == "__main__":
         "ACC-MIRAGE-001",      # Honeypot account
         "ACC-MIRAGE-009"       # Honeypot account
     ]
-    
+
     print("\n--- Running Evaluations ---")
     for acc in test_accounts:
         transaction = {"destination_account": acc}
         result = agent.evaluate(transaction)
-        
+
         status = "[BREACH!]" if result["severity_index"] == 100 else "[SAFE]"
         print(f"\nAccount: {acc} {status}")
         print(f"  Score: {result['severity_index']}")
         print(f"  Label: {result['signal']}")
         print(f"  Reason: {result['reason']}")
-    
+
     print("\n" + "="*65)
