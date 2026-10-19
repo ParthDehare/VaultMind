@@ -1,0 +1,13 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Explicitly declare Python files to always use LF
+*.py text eol=lf
+
+# Shell scripts always LF
+*.sh text eol=lf
+
+# Windows-specific files can keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
